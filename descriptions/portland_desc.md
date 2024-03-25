@@ -60,7 +60,7 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 
 | variable  | description | orig. source(s) |
 | --------- | ----------- | ----- |
-| `geometry` | All Portland roads joined by geography | Census GIS via `tinytiger` package |
+| `geometry` | Portland road shape; all joined by geography | Census GIS via `tinytiger` package |
 
 ### `PDX_walksheds`
 
