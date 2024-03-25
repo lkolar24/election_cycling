@@ -1,6 +1,6 @@
 # Data sets: Portland
 
-See thesis for abbreviations not otherwise defined. Note that earlier versions included many more variables; I decided to keep those I thought would be useful.
+See thesis for abbreviations not otherwise defined. Note that earlier versions included many more variables; I decided to keep those I thought would be useful. Sources are listed here; more information and/or hyperlinks can be found in thesis.
 
 ### `PDX_all`
 
@@ -60,10 +60,10 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 
 | variable  | description | orig. source(s) |
 | --------- | ----------- | ----- |
-| `var` | - | - | - |
+| `geometry` | All Portland roads joined by geography |  |
 
 ### `PDX_walksheds`
 
 | variable  | description | orig. source(s) |
 | --------- | ----------- | ----- |
-| `var` | - | - | - |
+| `var` | - | - | 
