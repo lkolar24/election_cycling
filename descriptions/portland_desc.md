@@ -1,4 +1,4 @@
-# Data sets: Portland
+# Data: Portland
 
 See thesis for abbreviations not otherwise defined. Note that earlier versions included many more variables; I decided to keep those I thought would be useful. Sources are listed here; more information and/or hyperlinks can be found in thesis.
 
@@ -63,13 +63,6 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 | `after_image` | - | - |
 | `after_image_year` | - | - |
 
-
-### `PDX_roads`
-
-| variable  | description | orig. source(s) |
-| --------- | ----------- | ----- |
-| `geometry` | Portland road shape; all joined by geography | Census GIS via `tinytiger` package |
-
 ### `PDX_walksheds`
 
 | variable  | description | orig. source(s) |
@@ -80,3 +73,9 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 | `year_built` | - | - | 
 | `infra_before` | - | - | 
 | `walk_15` | - | - | 
+
+### `PDX_roads`
+
+| variable  | description | orig. source(s) |
+| --------- | ----------- | ----- |
+| `geometry` | Portland road shape; all joined by geography | Census GIS via `tinytiger` package |
