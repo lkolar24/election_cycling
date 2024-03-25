@@ -50,19 +50,11 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 ```{r}
 ### DATA ###
 
-# BOUNDARY??
-##########FIX VARS
-########## CONVERT TO TIBBLE
-
 PDX_all <- readRDS(paste0(getwd(), "/data/portland/PDX_all.rds"))
-#PDX_all %>% as_tibble()
-
+PDX_protected_lanes <- readRDS(paste0(getwd(), "/data/portland/PDX_protected_lanes.rds"))
 PDX_walksheds <- readRDS(paste0(getwd(), "/data/portland/PDX_walksheds.rds"))
-
-PDX_lanes_sub <- readRDS(paste0(getwd(), "/data/portland/PDX_lanes_sub.rds"))
-
 PDX_roads <- readRDS(paste0(getwd(), "/data/portland/PDX_roads.rds"))
-  
+
 ```
 
 ```{r}
@@ -76,40 +68,40 @@ mod1 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 mod2 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + projs_prtct + 
-                    gent_area:projs_paint + pre_gent_area:projs_paint + 
-                    gent_area:projs_prtct + pre_gent_area:projs_prtct + 
-                    bgp_perc_auto:bgp_median_age:projs_paint + 
-                    bgp_perc_auto:bgp_median_age:projs_prtct, 
+                    t1_paint_all + t1_prtct_all + 
+                    gent_area:t1_paint_all + pre_gent_area:t1_paint_all + 
+                    gent_area:t1_prtct_all + pre_gent_area:t1_prtct_all + 
+                    bgp_perc_auto:bgp_median_age:t1_paint_all + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_all, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod3 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + laneprop_type12_all + laneprop_type3_all + 
-                    gent_area:projs_paint + pre_gent_area:projs_paint + 
-                    gent_area:laneprop_type12_all + pre_gent_area:laneprop_type12_all + 
-                    gent_area:laneprop_type3_all + pre_gent_area:laneprop_type3_all + 
-                    bgp_perc_auto:bgp_median_age:projs_paint + 
-                    bgp_perc_auto:bgp_median_age:laneprop_type12_all + 
-                    bgp_perc_auto:bgp_median_age:laneprop_type3_all, 
+                    t1_paint_all + t1_prtct_type1 + t1_prtct_type2 + 
+                    gent_area:t1_paint_all + pre_gent_area:t1_paint_all + 
+                    gent_area:t1_prtct_type1 + pre_gent_area:t1_prtct_type1 + 
+                    gent_area:t1_prtct_type2 + pre_gent_area:t1_prtct_type2 + 
+                    bgp_perc_auto:bgp_median_age:t1_paint_all + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type1 + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type2, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + laneprop_type12_2019 + laneprop_type3_2019 + 
-                    laneprop_type12_2020 + laneprop_type3_2020 + 
-                    gent_area:projs_paint + pre_gent_area:projs_paint + 
-                    gent_area:laneprop_type12_2019 + pre_gent_area:laneprop_type12_2019 + 
-                    gent_area:laneprop_type3_2019 + pre_gent_area:laneprop_type3_2019 + 
-                    gent_area:laneprop_type12_2020 + pre_gent_area:laneprop_type12_2020 + 
-                    gent_area:laneprop_type3_2020 + pre_gent_area:laneprop_type3_2020 + 
-                    bgp_perc_auto:bgp_median_age:projs_paint + 
-                    bgp_perc_auto:bgp_median_age:laneprop_type12_2019 + 
-                    bgp_perc_auto:bgp_median_age:laneprop_type3_2019 +
-                    bgp_perc_auto:bgp_median_age:laneprop_type12_2020 + 
-                    bgp_perc_auto:bgp_median_age:laneprop_type3_2020, 
+                    t1_paint_all + t1_prtct_type1_2019 + t1_prtct_type2_2019 + 
+                    t1_prtct_type1_2020 + t1_prtct_type2_2020 + 
+                    gent_area:t1_paint_all + pre_gent_area:t1_paint_all + 
+                    gent_area:t1_prtct_type1_2019 + pre_gent_area:t1_prtct_type1_2019 + 
+                    gent_area:t1_prtct_type2_2019 + pre_gent_area:t1_prtct_type2_2019 + 
+                    gent_area:t1_prtct_type1_2020 + pre_gent_area:t1_prtct_type1_2020 + 
+                    gent_area:t1_prtct_type2_2020 + pre_gent_area:t1_prtct_type2_2020 + 
+                    bgp_perc_auto:bgp_median_age:t1_paint_all + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type1_2019 + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type2_2019 +
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type1_2020 + 
+                    bgp_perc_auto:bgp_median_age:t1_prtct_type2_2020, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 # stargazer(mod1, mod2, mod3, mod4, title="Regression Results",
@@ -123,36 +115,36 @@ mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 mod5 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + walk_15_all + 
-                    gent_area:walk_15_all + pre_gent_area:walk_15_all + 
-                    bgp_perc_auto:bgp_median_age:walk_15_all, 
+                    t1_paint_all + t2_prtct_all + 
+                    gent_area:t2_prtct_all + pre_gent_area:t2_prtct_all + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_all, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod6 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + 
-                    walk_15_type1_all + walk_15_type3_all + 
-                    gent_area:walk_15_type1_all + pre_gent_area:walk_15_type1_all + 
-                    gent_area:walk_15_type3_all + pre_gent_area:walk_15_type3_all + 
-                    bgp_perc_auto:bgp_median_age:walk_15_type1_all + 
-                    bgp_perc_auto:bgp_median_age:walk_15_type3_all, 
+                    t1_paint_all + 
+                    t2_prtct_type1 + t2_prtct_type2 + 
+                    gent_area:t2_prtct_type1 + pre_gent_area:t2_prtct_type1 + 
+                    gent_area:t2_prtct_type2 + pre_gent_area:t2_prtct_type2 + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type1 + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type2, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 
-                    projs_paint + 
-                    walk_15_type1_2019 + walk_15_type3_2019 + 
-                    walk_15_type1_2020 + walk_15_type3_2020 + 
-                    gent_area:walk_15_type1_2019 + pre_gent_area:walk_15_type1_2019 + 
-                    gent_area:walk_15_type3_2019 + pre_gent_area:walk_15_type3_2019 + 
-                    gent_area:walk_15_type1_2020 + pre_gent_area:walk_15_type1_2020 + 
-                    gent_area:walk_15_type3_2020 + pre_gent_area:walk_15_type3_2020 +
-                    bgp_perc_auto:bgp_median_age:walk_15_type1_2019 + 
-                    bgp_perc_auto:bgp_median_age:walk_15_type3_2019 + 
-                    bgp_perc_auto:bgp_median_age:walk_15_type1_2020 + 
-                    bgp_perc_auto:bgp_median_age:walk_15_type3_2020, 
+                    t1_paint_all + 
+                    t2_prtct_type1_2019 + t2_prtct_type2_2019 + 
+                    t2_prtct_type1_2020 + t2_prtct_type2_2020 + 
+                    gent_area:t2_prtct_type1_2019 + pre_gent_area:t2_prtct_type1_2019 + 
+                    gent_area:t2_prtct_type2_2019 + pre_gent_area:t2_prtct_type2_2019 + 
+                    gent_area:t2_prtct_type1_2020 + pre_gent_area:t2_prtct_type1_2020 + 
+                    gent_area:t2_prtct_type2_2020 + pre_gent_area:t2_prtct_type2_2020 +
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type1_2019 + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type2_2019 + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type1_2020 + 
+                    bgp_perc_auto:bgp_median_age:t2_prtct_type2_2020, 
    data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 # stargazer(mod1, mod5, mod6, mod7, title="Regression Results",
@@ -162,9 +154,7 @@ mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 # anova(mod1, mod5)[1:6]
 # anova(mod1, mod6)[1:6]
 # anova(mod1, mod7)[1:6]
-
 ```
-
 
 ```{r}
 ### FIGURES: MAPS ###
@@ -177,13 +167,11 @@ pdx_fig1 <- PDX_all %>% st_as_sf() %>% ggplot() +
 
 pdx_fig2 <- PDX_all %>% st_as_sf() %>% ggplot() + 
   geom_sf(fill = "aliceblue") + theme_void() + 
-  geom_sf(data = rbind(PDX_roads %>% 
-                         summarize(geometry = st_union(geometry)) %>% 
-                         mutate(type = "Roads", width = "0.1"),
-                       PDX_lanes_sub %>% 
+  geom_sf(data = rbind(PDX_roads %>% mutate(type = "Roads", width = "0.1"),
+                       PDX_protected_lanes %>% 
                          summarize(geometry = st_union(geometry)) %>% 
                          mutate(type = "Protected    \nlanes", 
-                                width = "1")),
+                                width = "1")) %>% st_as_sf(),
           aes(color = type, lwd = width), alpha = 1) + 
   scale_color_manual(values = c("red", "blue"), name = "") + 
   scale_discrete_manual("linewidth", values = c(0.0375, 1), guide = "none") + 
@@ -204,7 +192,7 @@ pdx_fig3 <- PDX_all %>% st_as_sf() %>% ggplot() +
 pdx_fig9a <- pdx_fig3
 
 pdx_fig9b <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(), 
-                                aes(fill = projs_prtct)) + 
+                                aes(fill = t1_prtct_all)) + 
   theme_void() + 
   scale_fill_distiller(name = "T1 (all)      ", direction = 1, palette = "Oranges") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
@@ -225,13 +213,18 @@ pdx_fig10a <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(),
   theme(plot.background = element_rect(fill = "white", color = NA))
 
 pdx_fig10b <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(), 
-                                 aes(fill = walk_15_all)) + 
+                                 aes(fill = t2_prtct_all)) + 
   theme_void() + 
   scale_fill_distiller(name = "T2 (all)      ", direction = 1, palette = "Oranges") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-ggsave("figures/pdx/pdx_fig1.png", pdx_fig1, width = 4, height = 3, dpi = 200)
-
+# ggsave("figures/pdx/pdx_fig1.png", pdx_fig1, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig2.png", pdx_fig2, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig3.png", pdx_fig3, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig9a.png", pdx_fig9a, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig9b.png", pdx_fig9b, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig10a.png", pdx_fig10a, width = 4, height = 3, dpi = 200)
+# ggsave("figures/pdx/pdx_fig10b.png", pdx_fig10b, width = 4, height = 3, dpi = 200)
 ```
 
 ```{r}
@@ -243,15 +236,14 @@ h1 <- PDX_all %>%
   theme(plot.background = element_rect(fill = "white", color = NA))
 
 h2 <- PDX_all %>% 
-  ggplot(aes(x = projs_prtct)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  ggplot(aes(x = t1_prtct_all)) + geom_histogram(fill = "blue") + theme_minimal() + 
   labs(x = NULL, y = NULL) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
 h3 <- PDX_all %>% 
-  ggplot(aes(x = walk_15_all)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  ggplot(aes(x = t2_prtct_all)) + geom_histogram(fill = "blue") + theme_minimal() + 
   labs(x = NULL, y = NULL) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
-
 
 h4 <- PDX_all %>% 
   ggplot(aes(x = pre_gent_area)) + geom_histogram(fill = "blue") + theme_minimal() + 
@@ -278,5 +270,12 @@ h8 <- PDX_all %>%
   labs(x = NULL, y = NULL) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
+# ggsave("figures/pdx/hist/pdx_h1.png", h1, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h2.png", h2, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h3.png", h3, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h4.png", h4, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h5.png", h5, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h6.png", h6, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h7.png", h7, width = 4, height = 3, dpi = 100)
 # ggsave("figures/pdx/hist/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
 ```
