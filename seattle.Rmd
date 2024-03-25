@@ -1,0 +1,215 @@
+---
+title: "Portland"
+author: "Luke Kolar"
+date: "2024-04-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+```{r}
+options(java.parameters = "-Xmx4G") # Crucial for walkshed calculation
+
+library(r5r)
+library(geobr)
+library(sf)
+library(ggplot2)
+library(here)
+library(osmextract)
+library(data.table)
+library(magrittr)
+library(here)
+library(rgdal)
+library(mapview)
+library(janitor)
+library(readxl)
+library(ohsome)
+library(tabulizer)
+library(geojsonio)
+library(tinytiger)
+library(corrplot)
+library(huxtable)
+library(readxl)
+library(tinytiger)
+library(censable)
+library(geomander)
+library(ggnewscale)
+library(stargazer)
+library(raster)
+library(viridis)
+library(tidycensus)
+
+library(tidyverse)
+
+census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>% 
+                  filter(type == "tidycensus"))$key) # Enter your `tidycensus` API key
+
+```
+
+
+```{r}
+### DATA ###
+
+##########FIX VARS
+########## CONVERT TO TIBBLE
+
+SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") # some have same info but different geo for walkshed
+SEA_lanes_final <- readRDS("data/seattle/complete/SEA_lanes_final.rds")
+
+### REMOVE TRANSFORM
+SEA_walksheds <- readRDS("data/seattle/SEA_walksheds.rds")
+
+sub <- crop(SEA_walksheds, extent(st_bbox(SEA_boundary)))
+
+spTransform((SEA_walksheds %>%
+    select(walk_15) %>% 
+    st_as_sf() %>% 
+    st_make_valid() %>% 
+    summarize(walk_15 = st_union(walk_15)))$walk_15, 4480)
+
+st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
+    select(walk_15) %>% 
+    st_as_sf() %>% 
+    st_make_valid() %>% 
+    summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
+  crop(., extent(st_bbox(SEA_boundary))), 
+  CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")))
+
+
+st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
+    select(walk_15) %>% 
+    st_as_sf() %>% 
+    st_make_valid() %>% 
+    summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
+  crop(., extent(st_bbox(SEA_boundary))), 
+  CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))) %>% mapview()
+
+
+SEA_boundary <- readRDS("data/seattle/SEA_boundary.rds")
+
+SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds")    # local races
+SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds")  # federal races
+```
+
+```{r}
+### MODELS ###
+
+
+
+```
+
+
+```{r}
+### FIGURES: MAPS ###
+
+sea_fig1 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+  geom_sf(aes(fill = turnout_diff_oc1)) + theme_void() + 
+  scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6,
+                       labels = c("-0.15" = "-0.15", "0.10" = "", 
+                                  "-0.05" = "-0.05", "0.00" = "", 
+                                  "0.05" = "0.05")) + 
+  labs(fill = expression(paste(Delta, " turnout"))) + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom")
+
+sea_fig2 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+  geom_sf(aes(fill = turnout_diff_oc2)) + theme_void() + 
+  scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6,
+                       labels = c("0" = "0.00", "0.05" = "", 
+                                  "0.1" = "0.10", "0.15" = "", 
+                                  "0.2" = "0.20")) + 
+  labs(fill = expression(paste(Delta, " turnout"))) + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom")
+
+sea_fig3 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+  geom_sf(fill = "aliceblue") + theme_void() + 
+  geom_sf(data = st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
+                      select(walk_15) %>% 
+                      st_as_sf() %>% 
+                      st_make_valid() %>% 
+                      summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
+                    crop(., extent(st_bbox(SEA_boundary))), 
+                    CRS(paste0("+proj=longlat +datum=WGS84 +no_defs", 
+                               "+ellps=WGS84 +towgs84=0,0,0")))) %>% 
+            mutate(type = "15-min.\nwalkshed"), 
+          aes(fill = type), alpha = 0.75) + 
+  scale_fill_manual(values = "red", name = "") + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom",
+        legend.box.margin = margin(0, 0, 10, 0))
+
+ggsave("figures/sea/sea_fig1.png", sea_fig1, width = 3, height = 5, dpi = 200)
+ggsave("figures/sea/sea_fig2.png", sea_fig2, width = 3, height = 5, dpi = 200)
+ggsave("figures/sea/sea_fig3.png", sea_fig3, width = 3, height = 5, dpi = 200)
+
+```
+
+```{r}
+SEA_elections_odd
+```
+
+
+```{r}
+### FIGURES: HISTOGRAMS ###
+
+h1 <- SEA_elections_odd %>% 
+  ggplot(aes(x = turnout_diff_oc1)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h2 <- SEA_elections_odd %>% 
+  ggplot(aes(x = walk_15_oc1)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h3 <- SEA_elections_odd %>% 
+  ggplot(aes(x = turnout_13)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h4 <- SEA_elections_odd %>% 
+  ggplot(aes(x = perc_white_2010)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h5 <- SEA_elections_odd %>% 
+  ggplot(aes(x = popw_median_age_2010)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h6 <- SEA_elections_odd %>% 
+  ggplot(aes(x = popw_median_inc_2010)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h7 <- SEA_elections_odd %>% 
+  ggplot(aes(x = council_dist1)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+# ggsave("figures/sea/hist/sea_h7.png", h7, width = 4, height = 3, dpi = 100)
+
+```
+
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
