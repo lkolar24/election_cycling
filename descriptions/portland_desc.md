@@ -84,6 +84,6 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 
 | variable  | description | orig. source(s) |
 | --------- | ----------- | ----- |
-| `tract` | 2010 Census tract ID | - |
-| `geometry` | 2010 Census tract shapefile | - |
-| `gent_index` | - | - |
+| `tract` | 2010 Census tract ID | Census via `censable` package |
+| `geometry` | 2010 Census tract shapefile | Census GIS via `censable` package |
+| `gent_index` | Gentrification index using data pre-2016 demographic data | Portland 2018 gentrification study |
