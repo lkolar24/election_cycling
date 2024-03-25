@@ -15,32 +15,32 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 | `wheeler_change` | - | - | - | - |
 | `projs_prtct` = `t1_prtct_all` | - | - | - | - |
 | `projs_paint` = `t1_paint_all` | - | - | - | - |
-| `laneprop_type12_all` = `t1_prtct_type1` | - | - | - | - |
-| `laneprop_type3_all` = `t1_prtct_type2` | - | - | - | - |
-| `laneprop_type12_2016` = `t1_prtct_type1_2016` | - | - | - | - |
-| `laneprop_type12_2017` = `t1_prtct_type1_2017` | - | - | - | - |
-| `laneprop_type12_2018` = `t1_prtct_type1_2018` | - | - | - | - |
-| `laneprop_type12_2019` = `t1_prtct_type1_2019` | - | - | - | - |
-| `laneprop_type12_2020` = `t1_prtct_type1_2020` | - | - | - | - |
-| `laneprop_type3_2016` = `t1_prtct_type3_2016` | - | - | - | - |
-| `laneprop_type3_2017` = `t1_prtct_type3_2017` | - | - | - | - |
-| `laneprop_type3_2018` = `t1_prtct_type3_2018` | - | - | - | - |
-| `laneprop_type3_2019` = `t1_prtct_type3_2019` | - | - | - | - |
-| `laneprop_type3_2020` = `t1_prtct_type3_2020` | - | - | - | - |
-| `walk_15_all` = `t2_prtct_all` | - | - | - | - |
-| `walk_15_type1_all` = `t2_prtct_type1` | - | - | - | - |
-| `walk_15_type3_all` = `t2_prtct_type2` | - | - | - | - |
-| `walk_15_type1_2016` = `t2_prtct_type1_2016` | - | - | - | - |
-| `walk_15_type1_2017` = `t2_prtct_type1_2017` | - | - | - | - |
-| `walk_15_type1_2018` = `t2_prtct_type1_2018` | - | - | - | - |
-| `walk_15_type1_2019` = `t2_prtct_type1_2019` | - | - | - | - |
-| `walk_15_type1_2020` = `t2_prtct_type1_2020` | - | - | - | - |
-| `walk_15_type3_2016` = `t2_prtct_type3_2016` | - | - | - | - |
-| `walk_15_type3_2017` = `t2_prtct_type3_2017` | - | - | - | - |
-| `walk_15_type3_2018` = `t2_prtct_type3_2018` | - | - | - | - |
-| `walk_15_type3_2019` = `t2_prtct_type3_2019` | - | - | - | - |
-| `walk_15_type3_2020` = `t2_prtct_type3_2020` | - | - | - | - |
-| `pop_2010` = `pop_2010` | - | - | - | - |
+| `t1_prtct_type1` | - | - | - | - |
+| `t1_prtct_type2` | - | - | - | - |
+| `t1_prtct_type1_2016` | - | - | - | - |
+| `t1_prtct_type1_2017` | - | - | - | - |
+| `t1_prtct_type1_2018` | - | - | - | - |
+| `t1_prtct_type1_2019` | - | - | - | - |
+| `t1_prtct_type1_2020` | - | - | - | - |
+| `t1_prtct_type2_2016` | - | - | - | - |
+| `t1_prtct_type2_2017` | - | - | - | - |
+| `t1_prtct_type2_2018` | - | - | - | - |
+| `t1_prtct_type2_2019` | - | - | - | - |
+| `t1_prtct_type2_2020` | - | - | - | - |
+| `t2_prtct_all` | - | - | - | - |
+| `t2_prtct_type1` | - | - | - | - |
+| `t2_prtct_type2` | - | - | - | - |
+| `t2_prtct_type1_2016` | - | - | - | - |
+| `t2_prtct_type1_2017` | - | - | - | - |
+| `t2_prtct_type1_2018` | - | - | - | - |
+| `t2_prtct_type1_2019` | - | - | - | - |
+| `t2_prtct_type1_2020` | - | - | - | - |
+| `t2_prtct_type2_2016` | - | - | - | - |
+| `t2_prtct_type2_2017` | - | - | - | - |
+| `t2_prtct_type2_2018` | - | - | - | - |
+| `t2_prtct_type2_2019` | - | - | - | - |
+| `t2_prtct_type2_2020` | - | - | - | - |
+| `pop_2010` | - | - | - | - |
 | `gent_area` | - | - | - | - |
 | `pre_gent_area` | - | - | - | - |
 | `bgp_perc_auto` | - | - | - | - |
