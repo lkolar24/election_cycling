@@ -1,6 +1,10 @@
-# Election Cycling
+# Data from *Election Cycling* 
 
-My senior thesis, *Election Cycling: Quantifying the Impact of Bike Infrastructure on Local Elections and Democracy*, involves several analyses drawing from many data sources. Included in this are clean data sets for either replicating my work in final stages or performing your own. Additionally, in `.Rmd` files is code for recreating most of the figures I used. 
+Bike infrastructure and election data are messy, decentralized, and difficult. As such, one contribution I hope to make is allowing for easier use and analysis at the intersection of these subjects.
+
+Included in this repository are clean data sets for the public domain. Additionally, each `.Rmd` file, I include code for recreating my analyses and figures. 
+
+Though my full code is not included, I am working on turning many of my important functions - including walkshed calculations, longitudinal precinct join algorithms, functions for projecting block group features onto precincts, and more - into a standalone `R` package. In the meantime, you can reach me at <lukekolar@college.harvard.edu>.
 
 Below are the data sets by chapter; for underlying data sources, see descriptions in the `tables` folder.
 
