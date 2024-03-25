@@ -10,8 +10,8 @@ Though my full code is not included, I am working on turning many of my importan
 
 | Data set name  | Description |
 | ------------- | ------------- |
-| `PDX_all` | - |
-| `PDX_protected_lanes`  | - |
+| `PDX_all` | Final data set for regressions, with all variables and shapefiles for 78 precincts |
+| `PDX_protected_lanes`  | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/after images |
 | `PDX_roads` | - |
 | `PDX_walksheds` | - |
 | `PDX_roads` | - |
