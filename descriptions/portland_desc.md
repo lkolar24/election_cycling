@@ -1,30 +1,81 @@
-# Data from *Election Cycling* 
+# Data: Portland
 
-Bike infrastructure and election data are messy, decentralized, and difficult. Being passionate about both data science and these subjects, one contribution I hope to make is allowing for easier use and analysis of cycling and elections. Included in this repository are publicly available, finalized data sets. Additionally, each `.Rmd` file, I include code for recreating my analyses and figures. 
+See thesis for abbreviations not otherwise defined. Note that earlier versions included many more variables; I decided to keep those I thought would be useful. Sources are listed here; more information and/or hyperlinks can be found in thesis.
 
-Importantly, these draw on many underlying data sources. These are cited in my senior thesis, but I also include these in individual data set descriptions (see the `tables` folder). Below are the data sets included by chapter and their purpose.
+### `PDX_all`
 
-Though my full code is not included, I am working on turning many of my important functions - including functions for computing infrastructure walksheds, longitudinal precinct joins, population-weighted block group feature projection onto precincts, and more - into a standalone `R` package. In the meantime, you can reach me at <lukekolar@college.harvard.edu> for my existing (messier) version of these.
+| variable  | description | orig. source(s) |
+| --------- | ----------- | ----- |
+| `precinctid` | - | - |
+| `geometry` | - | - | 
+| `cast_votes_2016` | - | - | 
+| `cast_votes_2020` | - | - | 
+| `wheeler_perc_2016` | - | - | 
+| `wheeler_perc_2020` | - | - | 
+| `wheeler_change` | - | - | 
+| `t1_prtct_all` | - | - | 
+| `t1_paint_all` | - | - | 
+| `t1_prtct_type1` | - | - | 
+| `t1_prtct_type2` | - | - | 
+| `t1_prtct_type1_2016` | - | - | 
+| `t1_prtct_type1_2017` | - | - | 
+| `t1_prtct_type1_2018` | - | - |
+| `t1_prtct_type1_2019` | - | - |
+| `t1_prtct_type1_2020` | - | - |
+| `t1_prtct_type2_2016` | - | - |
+| `t1_prtct_type2_2017` | - | - |
+| `t1_prtct_type2_2018` | - | - |
+| `t1_prtct_type2_2019` | - | - |
+| `t1_prtct_type2_2020` | - | - | 
+| `t2_prtct_all` | - | - |
+| `t2_prtct_type1` | - | - |
+| `t2_prtct_type2` | - | - | 
+| `t2_prtct_type1_2016` | - | - |
+| `t2_prtct_type1_2017` | - | - | 
+| `t2_prtct_type1_2018` | - | - |
+| `t2_prtct_type1_2019` | - | - |
+| `t2_prtct_type1_2020` | - | - |
+| `t2_prtct_type2_2016` | - | - |
+| `t2_prtct_type2_2017` | - | - |
+| `t2_prtct_type2_2018` | - | - |
+| `t2_prtct_type2_2019` | - | - |
+| `t2_prtct_type2_2020` | - | - | 
+| `pop_2010` | - | - |
+| `gent_area` | - | - |
+| `pre_gent_area` | - | - | 
+| `bgp_perc_auto` | - | - |
+| `bgp_median_age` | - | - |
+| `bgp_median_inc` | - | - |
+| `pop_density_2010` | - | - |
+| `area_miles` | - | - |
 
-### Portland: *Electoral bikelash*
+### `PDX_protected_lanes`
 
-| Data set name  | Description |
-| ------------- | ------------- |
-| `PDX_all` | Final data set for regressions, with all variables (including many not used in final analysis) and shapefiles for 78 precincts |
-| `PDX_protected_lanes`  | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/after images |
-| `PDX_roads` | Street network shapefiles, for visualization |
-| `PDX_walksheds` | 15-min. walkshed shapefiles, for visualization |
-| `PDX_??` | - |
+| variable  | description | orig. source(s) |
+| --------- | ----------- | ----- |
+| `name` | - | - |
+| `geometry` | - | - |
+| `type` | - | - |
+| `year_built` | - | - | 
+| `infra_before` | - | - | 
+| `before_image` | - | - |
+| `before_image_year` | - | - |
+| `after_image` | - | - |
+| `after_image_year` | - | - |
 
-### Seattle: *Bike lane heuristics*
+### `PDX_walksheds`
 
-| Data set name  | Description |
-| ------------- | ------------- |
-| - | - |
+| variable  | description | orig. source(s) |
+| --------- | ----------- | ----- |
+| `name` | - | - |
+| `geometry` | - | - |
+| `type` | - | - |
+| `year_built` | - | - | 
+| `infra_before` | - | - | 
+| `walk_15` | - | - | 
 
+### `PDX_roads`
 
-### Manhattan: *Biking to the polls*
-
-| Data set name  | Description |
-| ------------- | ------------- |
-| - | - |
+| variable  | description | orig. source(s) |
+| --------- | ----------- | ----- |
+| `geometry` | Portland road shape; all joined by geography | Census GIS via `tinytiger` package |
