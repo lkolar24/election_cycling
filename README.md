@@ -6,24 +6,25 @@ Importantly, these draw on many underlying data sources. These are cited in my s
 
 Though my full code is not included, I am working on turning many of my important functions - including functions for computing infrastructure walksheds, longitudinal precinct joins, population-weighted block group feature projection onto precincts, and more - into a standalone `R` package. In the meantime, you can reach me at <lukekolar@college.harvard.edu> for my existing (messier) version of these.
 
-### Portland
+### Portland: *Electoral bikelash*
 
 | Data set name  | Description |
 | ------------- | ------------- |
-| `PDX_all` | Content Cell  |
-| `PDX_lanes_sub`  | Content Cell  |
+| `PDX_all` | - |
+| `PDX_protected_lanes`  | - |
+| `PDX_roads` | - |
+| `PDX_walksheds` | - |
+| `PDX_roads` | - |
 
-### Seattle
+### Seattle: *Bike lane heuristics*
 
-| Data set name  | Original sources |
+| Data set name  | Description |
 | ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| - | - |
 
 
-### Manhattan
+### Manhattan: *Biking to the polls*
 
-| Data set name  | Original sources |
+| Data set name  | Description |
 | ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| - | - |
