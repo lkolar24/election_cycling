@@ -66,7 +66,7 @@ PDX_roads <- readRDS(paste0(getwd(), "/data/portland/PDX_roads.rds"))
 mod1 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod2 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
@@ -76,7 +76,7 @@ mod2 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     gent_area:projs_prtct + pre_gent_area:projs_prtct + 
                     bgp_perc_auto:bgp_median_age:projs_paint + 
                     bgp_perc_auto:bgp_median_age:projs_prtct, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod3 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
@@ -88,7 +88,7 @@ mod3 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     bgp_perc_auto:bgp_median_age:projs_paint + 
                     bgp_perc_auto:bgp_median_age:laneprop_type12_all + 
                     bgp_perc_auto:bgp_median_age:laneprop_type3_all, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
@@ -105,7 +105,7 @@ mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     bgp_perc_auto:bgp_median_age:laneprop_type3_2019 +
                     bgp_perc_auto:bgp_median_age:laneprop_type12_2020 + 
                     bgp_perc_auto:bgp_median_age:laneprop_type3_2020, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 # stargazer(mod1, mod2, mod3, mod4, title="Regression Results",
 #           dep.var.labels=c("Wheeler vote share change"),
@@ -121,7 +121,7 @@ mod5 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     projs_paint + walk_15_all + 
                     gent_area:walk_15_all + pre_gent_area:walk_15_all + 
                     bgp_perc_auto:bgp_median_age:walk_15_all, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod6 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
@@ -132,7 +132,7 @@ mod6 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     gent_area:walk_15_type3_all + pre_gent_area:walk_15_type3_all + 
                     bgp_perc_auto:bgp_median_age:walk_15_type1_all + 
                     bgp_perc_auto:bgp_median_age:walk_15_type3_all, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
@@ -148,7 +148,7 @@ mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area +
                     bgp_perc_auto:bgp_median_age:walk_15_type3_2019 + 
                     bgp_perc_auto:bgp_median_age:walk_15_type1_2020 + 
                     bgp_perc_auto:bgp_median_age:walk_15_type3_2020, 
-   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+   data = PDX_all %>% mutate(pop_density_2010 = pop_density_2010/1000))
 
 # stargazer(mod1, mod5, mod6, mod7, title="Regression Results",
 #           dep.var.labels=c("Wheeler vote share change"),
@@ -162,7 +162,7 @@ mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 
 
 ```{r}
-### FIGURES ###
+### FIGURES: MAPS ###
 
 pdx_fig1 <- PDX_all %>% ggplot() + geom_sf(aes(fill = wheeler_change)) + theme_void() + 
   scale_fill_continuous(low = "red", high = "white") + 
@@ -226,6 +226,8 @@ pdx_fig10b <- ggplot() + geom_sf(data = PDX_all, aes(fill = walk_15_all)) +
 ```
 
 ```{r}
+### FIGURES: HISTOGRAMS ###
+
 h1 <- PDX_all %>% 
   ggplot(aes(x = wheeler_change)) + geom_histogram(fill = "blue") + theme_minimal() + 
   labs(x = NULL, y = NULL) + 
@@ -267,25 +269,5 @@ h8 <- PDX_all %>%
   labs(x = NULL, y = NULL) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-ggsave("figures/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
 ```
-
-
-```{r}
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
