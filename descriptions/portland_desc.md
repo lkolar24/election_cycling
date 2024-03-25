@@ -13,8 +13,8 @@ See thesis for abbreviations not otherwise defined. Note that earlier versions i
 | `wheeler_perc_2016` | - | - | - | 
 | `wheeler_perc_2020` | - | - | - | 
 | `wheeler_change` | - | - | - | 
-| `projs_prtct` = `t1_prtct_all` | - | - | - | 
-| `projs_paint` = `t1_paint_all` | - | - | - |
+| `t1_prtct_all` | - | - | - | 
+| `t1_paint_all` | - | - | - |
 | `t1_prtct_type1` | - | - | - | 
 | `t1_prtct_type2` | - | - | - |
 | `t1_prtct_type1_2016` | - | - | - |
