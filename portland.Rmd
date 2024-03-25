@@ -1,0 +1,291 @@
+---
+title: "Portland"
+author: "Luke Kolar"
+date: "2024-04-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+```{r}
+options(java.parameters = "-Xmx4G") # Crucial for walkshed calculation
+
+library(r5r)
+library(geobr)
+library(sf)
+library(ggplot2)
+library(here)
+library(osmextract)
+library(data.table)
+library(magrittr)
+library(here)
+library(rgdal)
+library(mapview)
+library(janitor)
+library(readxl)
+library(ohsome)
+library(tabulizer)
+library(geojsonio)
+library(tinytiger)
+library(corrplot)
+library(huxtable)
+library(readxl)
+library(tinytiger)
+library(censable)
+library(geomander)
+library(ggnewscale)
+library(stargazer)
+library(tidycensus)
+
+library(tidyverse)
+
+census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>% 
+                  filter(type == "tidycensus"))$key) # Enter your `tidycensus` API key
+
+```
+
+
+```{r}
+### DATA ###
+
+PDX_all <- readRDS(paste0(getwd(), "/data/portland/PDX_all.rds"))
+
+PDX_walksheds <- readRDS(paste0(getwd(), "/data/portland/PDX_walksheds.rds"))
+
+PDX_lanes_sub <- readRDS(paste0(getwd(), "/data/portland/PDX_lanes_sub.rds"))
+
+PDX_roads <- readRDS(paste0(getwd(), "/data/portland/PDX_roads.rds"))
+  
+```
+
+```{r}
+### MODELS ###
+
+mod1 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+mod2 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + projs_prtct + 
+                    gent_area:projs_paint + pre_gent_area:projs_paint + 
+                    gent_area:projs_prtct + pre_gent_area:projs_prtct + 
+                    bgp_perc_auto:bgp_median_age:projs_paint + 
+                    bgp_perc_auto:bgp_median_age:projs_prtct, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+mod3 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + laneprop_type12_all + laneprop_type3_all + 
+                    gent_area:projs_paint + pre_gent_area:projs_paint + 
+                    gent_area:laneprop_type12_all + pre_gent_area:laneprop_type12_all + 
+                    gent_area:laneprop_type3_all + pre_gent_area:laneprop_type3_all + 
+                    bgp_perc_auto:bgp_median_age:projs_paint + 
+                    bgp_perc_auto:bgp_median_age:laneprop_type12_all + 
+                    bgp_perc_auto:bgp_median_age:laneprop_type3_all, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + laneprop_type12_2019 + laneprop_type3_2019 + 
+                    laneprop_type12_2020 + laneprop_type3_2020 + 
+                    gent_area:projs_paint + pre_gent_area:projs_paint + 
+                    gent_area:laneprop_type12_2019 + pre_gent_area:laneprop_type12_2019 + 
+                    gent_area:laneprop_type3_2019 + pre_gent_area:laneprop_type3_2019 + 
+                    gent_area:laneprop_type12_2020 + pre_gent_area:laneprop_type12_2020 + 
+                    gent_area:laneprop_type3_2020 + pre_gent_area:laneprop_type3_2020 + 
+                    bgp_perc_auto:bgp_median_age:projs_paint + 
+                    bgp_perc_auto:bgp_median_age:laneprop_type12_2019 + 
+                    bgp_perc_auto:bgp_median_age:laneprop_type3_2019 +
+                    bgp_perc_auto:bgp_median_age:laneprop_type12_2020 + 
+                    bgp_perc_auto:bgp_median_age:laneprop_type3_2020, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+# stargazer(mod1, mod2, mod3, mod4, title="Regression Results",
+#           dep.var.labels=c("Wheeler vote share change"),
+#           column.labels = c("Model 1", "Model 2", "Model 3", "Model 4"))
+
+# anova(mod1, mod2)[1:6]
+# anova(mod1, mod3)[1:6]
+# anova(mod1, mod4)[1:6]
+
+mod5 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + walk_15_all + 
+                    gent_area:walk_15_all + pre_gent_area:walk_15_all + 
+                    bgp_perc_auto:bgp_median_age:walk_15_all, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+mod6 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + 
+                    walk_15_type1_all + walk_15_type3_all + 
+                    gent_area:walk_15_type1_all + pre_gent_area:walk_15_type1_all + 
+                    gent_area:walk_15_type3_all + pre_gent_area:walk_15_type3_all + 
+                    bgp_perc_auto:bgp_median_age:walk_15_type1_all + 
+                    bgp_perc_auto:bgp_median_age:walk_15_type3_all, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
+                    bgp_perc_auto*bgp_median_age + 
+                    pop_density_2010 + 
+                    projs_paint + 
+                    walk_15_type1_2019 + walk_15_type3_2019 + 
+                    walk_15_type1_2020 + walk_15_type3_2020 + 
+                    gent_area:walk_15_type1_2019 + pre_gent_area:walk_15_type1_2019 + 
+                    gent_area:walk_15_type3_2019 + pre_gent_area:walk_15_type3_2019 + 
+                    gent_area:walk_15_type1_2020 + pre_gent_area:walk_15_type1_2020 + 
+                    gent_area:walk_15_type3_2020 + pre_gent_area:walk_15_type3_2020 +
+                    bgp_perc_auto:bgp_median_age:walk_15_type1_2019 + 
+                    bgp_perc_auto:bgp_median_age:walk_15_type3_2019 + 
+                    bgp_perc_auto:bgp_median_age:walk_15_type1_2020 + 
+                    bgp_perc_auto:bgp_median_age:walk_15_type3_2020, 
+   data = PDX_final7 %>% mutate(pop_density_2010 = pop_density_2010/1000))
+
+# stargazer(mod1, mod5, mod6, mod7, title="Regression Results",
+#           dep.var.labels=c("Wheeler vote share change"),
+#           column.labels = c("Model 1", "Model 5", "Model 6", "Model 7"))
+
+# anova(mod1, mod5)[1:6]
+# anova(mod1, mod6)[1:6]
+# anova(mod1, mod7)[1:6]
+
+```
+
+
+```{r}
+### FIGURES ###
+
+pdx_fig1 <- PDX_all %>% ggplot() + geom_sf(aes(fill = wheeler_change)) + theme_void() + 
+  scale_fill_continuous(low = "red", high = "white") + 
+  labs(fill = expression(paste(Delta, "% Wheeler    "))) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+pdx_fig2 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() + 
+  geom_sf(data = rbind(PDX_roads %>% 
+                         summarize(geometry = st_union(geometry)) %>% 
+                         mutate(type = "Roads", width = "0.1"),
+                       PDX_lanes_sub %>% 
+                         summarize(geometry = st_union(geometry)) %>% 
+                         mutate(type = "Protected    \nlanes", 
+                                width = "1")),
+          aes(color = type, lwd = width), alpha = 1) + 
+  scale_color_manual(values = c("red", "blue"), name = "") + 
+  scale_discrete_manual("linewidth", values = c(0.0375, 1), guide = "none") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+pdx_fig3 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() + 
+  geom_sf(data = PDX_walksheds %>% 
+            as_tibble() %>% 
+            select(walk_15) %>% 
+            st_as_sf() %>% 
+            st_make_valid() %>% 
+            summarize(walk_15 = st_union(walk_15)) %>% 
+            mutate(type = "15-min.\nwalkshed    "), 
+          aes(fill = type), alpha = 0.75) + 
+  scale_fill_manual(values = "red", name = "") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+pdx_fig9a <- pdx_fig3
+
+pdx_fig9b <- ggplot() + geom_sf(data = PDX_all, aes(fill = projs_prtct)) + 
+  theme_void() + 
+  scale_fill_distiller(name = "T1 (all)      ", direction = 1, palette = "Oranges") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+pdx_fig10a <- ggplot() + geom_sf(data = PDX_all, aes(fill = as.numeric(area_miles))) + 
+  theme_void() + 
+  scale_fill_distiller(name = "Sq. miles    ", direction = 1) + 
+  new_scale("fill") + 
+  geom_sf(data = PDX_walksheds %>% 
+            as_tibble() %>% 
+            select(walk_15) %>% 
+            st_as_sf() %>% 
+            st_make_valid() %>% 
+            summarize(walk_15 = st_union(walk_15)) %>% 
+            mutate(type = "15-min.\nwalkshed    "), 
+          aes(fill = type), alpha = 0.75) + 
+  scale_fill_manual(values = "red", name = "") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+pdx_fig10b <- ggplot() + geom_sf(data = PDX_all, aes(fill = walk_15_all)) + 
+  theme_void() + 
+  scale_fill_distiller(name = "T2 (all)      ", direction = 1, palette = "Oranges") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+# ggsave("pdx_fig3.png", pdx_fig3, width = 4, height = 3, dpi = 200)
+
+```
+
+```{r}
+h1 <- PDX_all %>% 
+  ggplot(aes(x = wheeler_change)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h2 <- PDX_all %>% 
+  ggplot(aes(x = projs_prtct)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h3 <- PDX_all %>% 
+  ggplot(aes(x = walk_15_all)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+
+h4 <- PDX_all %>% 
+  ggplot(aes(x = pre_gent_area)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h5 <- PDX_all %>% 
+  ggplot(aes(x = gent_area)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h6 <- PDX_all %>% 
+  ggplot(aes(x = bgp_perc_auto)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h7 <- PDX_all %>% 
+  ggplot(aes(x = bgp_median_age)) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+h8 <- PDX_all %>% 
+  ggplot(aes(x = as.numeric(pop_density_2010))) + geom_histogram(fill = "blue") + theme_minimal() + 
+  labs(x = NULL, y = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+ggsave("figures/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
+```
+
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
