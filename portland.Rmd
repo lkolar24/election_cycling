@@ -50,7 +50,12 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 ```{r}
 ### DATA ###
 
+# BOUNDARY??
+##########FIX VARS
+########## CONVERT TO TIBBLE
+
 PDX_all <- readRDS(paste0(getwd(), "/data/portland/PDX_all.rds"))
+#PDX_all %>% as_tibble()
 
 PDX_walksheds <- readRDS(paste0(getwd(), "/data/portland/PDX_walksheds.rds"))
 
@@ -164,12 +169,14 @@ mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 ```{r}
 ### FIGURES: MAPS ###
 
-pdx_fig1 <- PDX_all %>% ggplot() + geom_sf(aes(fill = wheeler_change)) + theme_void() + 
+pdx_fig1 <- PDX_all %>% st_as_sf() %>% ggplot() + 
+  geom_sf(aes(fill = wheeler_change)) + theme_void() + 
   scale_fill_continuous(low = "red", high = "white") + 
-  labs(fill = expression(paste(Delta, "% Wheeler    "))) + 
+  labs(fill = expression(paste(Delta, " Wheeler    "))) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-pdx_fig2 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() + 
+pdx_fig2 <- PDX_all %>% st_as_sf() %>% ggplot() + 
+  geom_sf(fill = "aliceblue") + theme_void() + 
   geom_sf(data = rbind(PDX_roads %>% 
                          summarize(geometry = st_union(geometry)) %>% 
                          mutate(type = "Roads", width = "0.1"),
@@ -182,9 +189,9 @@ pdx_fig2 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() +
   scale_discrete_manual("linewidth", values = c(0.0375, 1), guide = "none") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-pdx_fig3 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() + 
+pdx_fig3 <- PDX_all %>% st_as_sf() %>% ggplot() + 
+  geom_sf(fill = "aliceblue") + theme_void() + 
   geom_sf(data = PDX_walksheds %>% 
-            as_tibble() %>% 
             select(walk_15) %>% 
             st_as_sf() %>% 
             st_make_valid() %>% 
@@ -196,17 +203,18 @@ pdx_fig3 <- PDX_all %>% ggplot() + geom_sf(fill = "aliceblue") + theme_void() +
 
 pdx_fig9a <- pdx_fig3
 
-pdx_fig9b <- ggplot() + geom_sf(data = PDX_all, aes(fill = projs_prtct)) + 
+pdx_fig9b <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(), 
+                                aes(fill = projs_prtct)) + 
   theme_void() + 
   scale_fill_distiller(name = "T1 (all)      ", direction = 1, palette = "Oranges") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-pdx_fig10a <- ggplot() + geom_sf(data = PDX_all, aes(fill = as.numeric(area_miles))) + 
+pdx_fig10a <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(), 
+                                 aes(fill = as.numeric(area_miles))) + 
   theme_void() + 
   scale_fill_distiller(name = "Sq. miles    ", direction = 1) + 
   new_scale("fill") + 
   geom_sf(data = PDX_walksheds %>% 
-            as_tibble() %>% 
             select(walk_15) %>% 
             st_as_sf() %>% 
             st_make_valid() %>% 
@@ -216,12 +224,13 @@ pdx_fig10a <- ggplot() + geom_sf(data = PDX_all, aes(fill = as.numeric(area_mile
   scale_fill_manual(values = "red", name = "") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-pdx_fig10b <- ggplot() + geom_sf(data = PDX_all, aes(fill = walk_15_all)) + 
+pdx_fig10b <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(), 
+                                 aes(fill = walk_15_all)) + 
   theme_void() + 
   scale_fill_distiller(name = "T2 (all)      ", direction = 1, palette = "Oranges") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-# ggsave("pdx_fig3.png", pdx_fig3, width = 4, height = 3, dpi = 200)
+ggsave("figures/pdx/pdx_fig1.png", pdx_fig1, width = 4, height = 3, dpi = 200)
 
 ```
 
@@ -269,5 +278,5 @@ h8 <- PDX_all %>%
   labs(x = NULL, y = NULL) + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-# ggsave("figures/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
 ```
