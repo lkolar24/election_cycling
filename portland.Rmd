@@ -54,6 +54,7 @@ PDX_all <- readRDS(paste0(getwd(), "/data/portland/PDX_all.rds"))
 PDX_protected_lanes <- readRDS(paste0(getwd(), "/data/portland/PDX_protected_lanes.rds"))
 PDX_walksheds <- readRDS(paste0(getwd(), "/data/portland/PDX_walksheds.rds"))
 PDX_roads <- readRDS(paste0(getwd(), "/data/portland/PDX_roads.rds"))
+PDX_gent_index_2016 <- readRDS("data/portland/PDX_gent_index_2016.rds")
 
 ```
 
@@ -154,6 +155,7 @@ mod7 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 # anova(mod1, mod5)[1:6]
 # anova(mod1, mod6)[1:6]
 # anova(mod1, mod7)[1:6]
+
 ```
 
 ```{r}
@@ -225,6 +227,8 @@ pdx_fig10b <- ggplot() + geom_sf(data = PDX_all %>% st_as_sf(),
 # ggsave("figures/pdx/pdx_fig9b.png", pdx_fig9b, width = 4, height = 3, dpi = 200)
 # ggsave("figures/pdx/pdx_fig10a.png", pdx_fig10a, width = 4, height = 3, dpi = 200)
 # ggsave("figures/pdx/pdx_fig10b.png", pdx_fig10b, width = 4, height = 3, dpi = 200)
+
+
 ```
 
 ```{r}
