@@ -55,51 +55,131 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 ##########FIX VARS
 ########## CONVERT TO TIBBLE
 
-SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") # some have same info but different geo for walkshed
-SEA_lanes_final <- readRDS("data/seattle/complete/SEA_lanes_final.rds")
+SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") 
 
 ### REMOVE TRANSFORM
 SEA_walksheds <- readRDS("data/seattle/SEA_walksheds.rds")
-
-sub <- crop(SEA_walksheds, extent(st_bbox(SEA_boundary)))
-
-spTransform((SEA_walksheds %>%
-    select(walk_15) %>% 
-    st_as_sf() %>% 
-    st_make_valid() %>% 
-    summarize(walk_15 = st_union(walk_15)))$walk_15, 4480)
-
-st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
-    select(walk_15) %>% 
-    st_as_sf() %>% 
-    st_make_valid() %>% 
-    summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
-  crop(., extent(st_bbox(SEA_boundary))), 
-  CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")))
-
-
-st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
-    select(walk_15) %>% 
-    st_as_sf() %>% 
-    st_make_valid() %>% 
-    summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
-  crop(., extent(st_bbox(SEA_boundary))), 
-  CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))) %>% mapview()
-
 
 SEA_boundary <- readRDS("data/seattle/SEA_boundary.rds")
 
 SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds")    # local races
 SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds")  # federal races
+
 ```
 
 ```{r}
 ### MODELS ###
 
+mod1a <- SEA_elections_odd %>% 
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_13 = 100*turnout_13) %>% 
+  lm(100*turnout_diff_oc1 ~ turnout_13 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
 
+mod1b <- SEA_elections_odd %>% 
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000,
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_13 = 100*turnout_13) %>% 
+  lm(100*turnout_diff_oc1 ~ walk_15_oc1 + turnout_13 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
+
+mod1c <- SEA_elections_odd %>% 
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_13 = 100*turnout_13) %>% 
+  lm(100*turnout_diff_oc1 ~ walk_15_oc1_type1 + walk_15_oc1_type2 + turnout_13 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
+
+# stargazer(mod1a, mod1b, mod1c, title="Regression Results",
+#           dep.var.labels=c("Turnout change"),
+#           column.labels = c("Model 1a", "Model 1b", "Model 1c"))
+
+mod2a <- SEA_elections_odd %>%
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_15 = 100*turnout_15) %>% 
+  lm(100*turnout_diff_oc2 ~ turnout_15 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        council_dist1 + council_dist2 + council_dist3 + council_dist4 + 
+                        council_dist5 + council_dist6, data = .)
+
+mod2b <- SEA_elections_odd %>%
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_15 = 100*turnout_15) %>% 
+  lm(100*turnout_diff_oc2 ~ walk_15_oc2 + turnout_15 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        council_dist1 + council_dist2 + council_dist3 + council_dist4 + 
+                        council_dist5 + council_dist6, data = .)
+
+mod2c <- SEA_elections_odd %>% 
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_15 = 100*turnout_15) %>% 
+  lm(100*turnout_diff_oc2 ~ walk_15_oc2_type1 + walk_15_oc2_type2 + turnout_15 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        council_dist1 + council_dist2 + council_dist3 + council_dist4 + 
+                        council_dist5 + council_dist6, data = .)
+
+# stargazer(mod1a, mod1b, mod1c, title="Regression Results",
+#           dep.var.labels=c("Turnout change"),
+#           column.labels = c("Model 2a", "Model 2b", "Model 2c"))
+
+mod3a <- SEA_elections_even %>%  
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_14 = 100*turnout_14) %>% 
+  lm(100*turnout_diff_ec2 ~ turnout_14 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        cong_dist7, data = .)
+
+mod3b <- SEA_elections_even %>%   
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_14 = 100*turnout_14) %>% 
+  lm(100*turnout_diff_ec2 ~ walk_15_ec2 + turnout_14 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        cong_dist7, data = .)
+
+mod3c <- SEA_elections_even %>%   
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_14 = 100*turnout_14) %>% 
+  lm(100*turnout_diff_ec2 ~ walk_15_ec2_type1 + walk_15_ec2_type2 + turnout_14 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010 + 
+                        cong_dist7, data = .)
+
+# stargazer(mod1a, mod1b, mod1c, title="Regression Results",
+#           dep.var.labels=c("Turnout change"),
+#           column.labels = c("Model 3a", "Model 3b", "Model 3c"))
+
+mod4a <- SEA_elections_even %>%  
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_16 = 100*turnout_16) %>% 
+  lm(100*turnout_diff_ec3 ~ turnout_16 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
+
+mod4b <- SEA_elections_even %>%   
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_16 = 100*turnout_16) %>% 
+  lm(100*turnout_diff_ec3 ~ walk_15_ec3 + turnout_16 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
+
+mod4c <- SEA_elections_even %>%   
+  mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         turnout_16 = 100*turnout_16) %>% 
+  lm(100*turnout_diff_ec3 ~ walk_15_ec3_type1 + walk_15_ec3_type2 + turnout_16 + 
+                        popw_median_age_2010 + popw_median_inc_2010_1k + perc_white_2010, data = .)
+
+# stargazer(mod4a, mod4b, mod4c, title="Regression Results",
+#           dep.var.labels=c("Turnout change"),
+#           column.labels = c("Model 4a", "Model 4b", "Model 4c"))
 
 ```
-
 
 ```{r}
 ### FIGURES: MAPS ###
@@ -141,16 +221,9 @@ sea_fig3 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() +
         legend.position = "bottom",
         legend.box.margin = margin(0, 0, 10, 0))
 
-ggsave("figures/sea/sea_fig1.png", sea_fig1, width = 3, height = 5, dpi = 200)
-ggsave("figures/sea/sea_fig2.png", sea_fig2, width = 3, height = 5, dpi = 200)
-ggsave("figures/sea/sea_fig3.png", sea_fig3, width = 3, height = 5, dpi = 200)
+# ggsave("figures/sea/sea_fig1.png", sea_fig1, width = 3, height = 5, dpi = 200)
 
 ```
-
-```{r}
-SEA_elections_odd
-```
-
 
 ```{r}
 ### FIGURES: HISTOGRAMS ###
