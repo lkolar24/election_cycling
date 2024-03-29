@@ -11,4 +11,8 @@ election_cycling.Rproj
 ## Old PDX files:
 
 data/portland/old
+data/seattle/old
+
+figures/pdx/old
+
 portland_full.Rmd

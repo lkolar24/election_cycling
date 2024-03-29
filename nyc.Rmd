@@ -1,0 +1,401 @@
+---
+title: "NYC"
+author: "Luke Kolar"
+date: "2024-04-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+```{r}
+options(java.parameters = "-Xmx4G") # Crucial for walkshed calculation
+
+library(r5r)
+library(geobr)
+library(sf)
+library(ggplot2)
+library(here)
+library(osmextract)
+library(data.table)
+library(magrittr)
+library(here)
+library(rgdal)
+library(mapview)
+library(janitor)
+library(readxl)
+library(ohsome)
+library(mapview)
+library(censable)
+library(geomander)
+library(tabulizer)
+library(readxl)
+library(Matrix)
+library(igraph)
+library(units)
+library(readxl)
+library(lubridate)
+library(rmapshaper)
+library(stargazer)
+
+
+library(tidycensus)
+census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>% 
+                  filter(type == "tidycensus"))$key) # Enter your `tidycensus` API key
+
+library(tidyverse)
+```
+
+
+```{r}
+### DATA ###
+
+NYC_turnout_all <- readRDS("data/nyc/NYC_turnout_all.rds")
+NYC_boundary <- readRDS("data/nyc/NYC_boundary.rds")
+
+
+citi_2014 <- readRDS("data/nyc/citi_2014.rds")
+citi_2015 <- readRDS("data/nyc/citi_2015.rds")
+citi_2016 <- readRDS("data/nyc/citi_2016.rds")
+citi_2017 <- readRDS("data/nyc/citi_2017.rds")
+citi_2018 <- readRDS("data/nyc/citi_2018.rds")
+all_station_ids <- readRDS("data/nyc/all_station_ids.rds")
+
+
+
+
+```
+
+```{r}
+### ANALYSIS 1 ###
+
+NYC_turnout_all <- readRDS("data/nyc/NYC_turnout_all.rds")
+
+mod1a <- NYC_turnout_all %>%  
+  mutate(popw_median_inc_2010_10k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         perc_black_2010 = 100*perc_black_2010, 
+         perc_hisp_2010 = 100*perc_hisp_2010, 
+         to_14 = 100*to_14) %>% 
+  lm(100*to_delta ~ to_14 + perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
+                      popw_median_inc_2010_10k + popw_median_age_2010 + 
+                      cd7 + cd10 + cd12 + cd13, data = .)
+
+mod1b <- NYC_turnout_all %>%  
+  mutate(popw_median_inc_2010_10k = popw_median_inc_2010/1000, 
+         perc_white_2010 = 100*perc_white_2010, 
+         perc_black_2010 = 100*perc_black_2010, 
+         perc_hisp_2010 = 100*perc_hisp_2010, 
+         to_14 = 100*to_14) %>% 
+  lm(100*to_delta ~ to_14 + perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
+                      popw_median_inc_2010_10k + popw_median_age_2010 + 
+                      cd7 + cd10 + cd12 + cd13 + only_new, data = .)
+
+# mod1c <- lm(to_18 ~ perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
+#                       popw_median_inc_2010 + popw_median_age_2010 + 
+#                       cd7 + cd10 + cd12 + cd13 + old + only_new + both_old_new, 
+#            data = NYC_turnout_all) %>% summary()
+
+# mod1d <- lm(to_14 ~ perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
+#                       popw_median_inc_2010 + popw_median_age_2010 + 
+#                       cd7 + cd10 + cd12 + cd13 + old, 
+#            data = NYC_turnout_all) %>% summary()
+
+# stargazer(mod1a, mod1b, title="Regression Results",
+#           dep.var.labels=c(""),
+#           column.labels = c("Model 1a", "Model 1b"))
+
+mod_2 <- readRDS("data/nyc/NYC_weather_mod.rds")
+
+# stargazer(weather_mod, title="Regression Results",
+#           dep.var.labels=c(""),
+#           column.labels = c("Weather/weekday model"))
+
+mod_3a <- citi_2018_eday_distances %>% 
+  lm(subscriber_perc_avg_eday ~ sqrt(min_polling_distance), data = .)
+
+mod_3b <- citi_2018_eday_distances %>% 
+  lm(subscriber_perc_avg_eday ~ n_within_250m, data = .) 
+
+stargazer(mod_3a, mod_3b, title="Regression Results",
+          dep.var.labels=c(""),
+          column.labels = c("Model 3a", "Model 3b"))
+
+
+
+```
+
+```{r, warning = F}
+### ANALYSIS 2 ###
+
+#
+citi_eday_comparison <- readRDS("data/nyc/citi_eday_comparison.rds")
+NYC_weather <- readRDS("data/nyc/NYC_weather.rds")
+NYC_weather_mod <- readRDS("data/nyc/NYC_weather_mod.rds")
+
+eday_weather_14 <- NYC_weather %>% filter(date == "2014-11-04")
+eday_weather_18 <- NYC_weather %>% filter(date == "2018-11-06")
+
+#
+
+citi_eday_comparison %>% filter(year == 2014) %>% 
+  ggplot(aes(x = subscriber_avg, y = subscriber_eday)) + geom_point() + xlim(0, 400) + ylim(0, 400) + 
+  geom_abline(slope = 1, intercept = 0, color = "red")
+
+citi_eday_comparison %>% filter(year == 2018) %>% 
+  ggplot(aes(x = subscriber_avg, y = subscriber_eday)) + 
+  geom_point() + xlim(0, 400) + ylim(0, 400) + 
+  geom_abline(slope = 1, intercept = 0, color = "red")
+
+####
+
+subscriber_perc_exp_eday_18 <- NYC_weather_mod$coefficients[1] + 
+  NYC_weather_mod$coefficients[2]*eday_weather_18$prcp + 
+  NYC_weather_mod$coefficients[5]*eday_weather_18$tmin + 
+  NYC_weather_mod$coefficients[6]*eday_weather_18$tmax
+
+citi_eday_comparison %>% filter(year == 2018) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday)) + 
+  geom_histogram() + geom_vline(xintercept = subscriber_perc_exp_eday_18)
+
+citi_eday_comparison %>% filter(year == 2018) %>% 
+  inner_join(all_station_ids) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday, y = subscriber_eday, color = type)) + 
+  geom_point() + geom_vline(xintercept = subscriber_perc_exp_eday_18)
+
+citi_eday_comparison %>% filter(year == 2018) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  inner_join(all_station_ids) %>% st_as_sf() %>% 
+  filter(subscriber_perc_avg_eday > 0.5, subscriber_perc_avg_eday < 1) %>% 
+  mapview(zcol = "subscriber_perc_avg_eday")
+
+citi_eday_comparison %>% filter(year == 2018) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  mutate(which = ifelse(subscriber_perc_avg_eday < subscriber_perc_exp_eday_18 + 0.1,
+                        ifelse(subscriber_perc_avg_eday > subscriber_perc_exp_eday_18 - 0.1, 
+                               "near", "low"), "high")) %>% 
+  inner_join(all_station_ids) %>% st_as_sf() %>% mapview(zcol = "which")
+
+####
+
+subscriber_perc_exp_eday_14 <- NYC_weather_mod$coefficients[1] + 
+  NYC_weather_mod$coefficients[2]*eday_weather_14$prcp + 
+  NYC_weather_mod$coefficients[5]*eday_weather_14$tmin + 
+  NYC_weather_mod$coefficients[6]*eday_weather_14$tmax
+
+citi_eday_comparison %>% filter(year == 2014) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday)) + 
+  geom_histogram() + geom_vline(xintercept = subscriber_perc_exp_eday_14)
+
+citi_eday_comparison %>% filter(year == 2014) %>% 
+  inner_join(all_station_ids) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday, y = subscriber_eday, color = type)) + 
+  geom_point() + geom_vline(xintercept = subscriber_perc_exp_eday_14)
+
+citi_eday_comparison %>% filter(year == 2014) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  inner_join(all_station_ids) %>% st_as_sf() %>% 
+  filter(subscriber_perc_avg_eday > 0.5, subscriber_perc_avg_eday < 1) %>% 
+  mapview(zcol = "subscriber_perc_avg_eday")
+
+citi_eday_comparison %>% filter(year == 2014) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  mutate(which = ifelse(subscriber_perc_avg_eday < subscriber_perc_exp_eday_14 + 0.1,
+                        ifelse(subscriber_perc_avg_eday > subscriber_perc_exp_eday_14 - 0.1, 
+                               "near", "low"), "high")) %>% 
+  inner_join(all_station_ids) %>% st_as_sf() %>% mapview(zcol = "which")
+
+```
+
+```{r}
+#### ANALYSIS 3
+
+#
+
+NYC_polling_2018 <- readRDS("data/nyc/NYC_polling_2018.rds")
+citi_2018_eday_distances <- readRDS("data/nyc/citi_2018_eday_distances.rds")
+combined_ids_polling <- readRDS("data/nyc/combined_ids_polling.rds")
+
+#
+
+citi_2018_eday_distances %>% 
+  lm(subscriber_perc_avg_eday ~ n_within_250m, data = .) %>% summary()
+
+citi_2018_eday_distances %>% 
+  lm(subscriber_perc_avg_eday ~ sqrt(n_within_250m), data = .) %>% summary()
+
+citi_2018_eday_distances %>% 
+  ggplot(aes(x = n_within_250m, 
+             y = subscriber_perc_avg_eday)) + geom_jitter(height = 0, width = 0.06, alpha = 0.75) + 
+  geom_smooth(method = "lm", se = T, color = "red") + theme_minimal()
+
+####
+
+mod_3a <- citi_2018_eday_distances %>% 
+  lm(subscriber_perc_avg_eday ~ sqrt(min_polling_distance), data = .)
+
+citi_2018_eday_distances %>% 
+  ggplot(aes(x = sqrt(min_polling_distance), 
+             y = subscriber_perc_avg_eday)) + geom_point() + 
+  geom_smooth(method = "lm", se = T, color = "red")
+
+####
+combined_ids_polling
+
+
+```
+
+
+```{r}
+### FIGURES: MAPS ###
+
+nyc_fig1 <- NYC_boundary %>%
+  # st_transform("+proj=laea +x_0=0 +y_0=0 +lon_0=-50 +lat_0=40") %>%  # May come in handy later?
+  ggplot() + geom_sf(fill = "aliceblue") +  
+  geom_sf(data = all_station_ids %>% 
+            filter(type %in% c("exp", "old")), aes(color = type), size = 1) + 
+  theme_void() + scale_color_manual(values = c("tomato2", "skyblue3")) + 
+  labs(color = "Stations in 2018\n(from 2014)") + 
+  theme(plot.background = element_rect(fill = "white", color = NA), 
+        legend.position = "none")
+
+nyc_fig2 <- NYC_boundary %>%
+  ggplot() + geom_sf(fill = "aliceblue") +  
+  geom_sf(data = all_station_ids %>% 
+            mutate(type = ifelse(type == "exp", "Removed",
+                                 ifelse(type == "old", "Existed",
+                                        "New"))) %>% 
+            filter(type != "Removed"), aes(color = type), size = 1) + 
+  theme_void() + scale_color_manual(values = c("skyblue3", "seagreen3")) + 
+  labs(color = "Stations in 2018\n(from 2014)") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+### ADD BOUNDING BOX ^^^
+
+nyc_fig3 <- NYC_boundary %>% 
+  ggplot() + geom_sf(fill = "grey") + 
+  geom_sf(data = NYC_turnout_all %>% st_as_sf(), aes(fill = to_delta)) + 
+  scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6) + 
+  theme_void() + 
+  theme(plot.background = element_rect(fill = "white", color = NA)) + 
+  labs(fill = expression(paste(Delta, " turnout")))
+
+nyc_fig4 <- NYC_boundary %>% 
+  ggplot() + geom_sf(fill = "grey") + 
+  geom_sf(data = NYC_turnout_all %>% st_as_sf() %>% 
+            mutate(only_new = ifelse(only_new == 1, "Yes", "No")), 
+          aes(fill = as.character(only_new))) + 
+  scale_fill_brewer(palette = "Spectral", direction = -1) + 
+  theme_void() + 
+  theme(plot.background = element_rect(fill = "white", color = NA)) + 
+  labs(fill = "New station:")
+
+# ggsave("figures/nyc/nyc_fig4.png", nyc_fig4, width = 8, height = 6, dpi = 300)
+
+
+nyc_fig5 <- citi_eday_comparison %>% filter(year == 2014) %>% 
+  ggplot(aes(x = subscriber_avg, y = subscriber_eday)) + geom_point() + xlim(0, 400) + ylim(0, 400) + 
+  geom_abline(slope = 1, intercept = 0, color = "red") + theme_minimal() + 
+  labs(x = "Avg. Oct.-Nov. (2014) subscriber stops", y = "Election Day (2014) subscriber stops") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+nyc_fig6 <- citi_eday_comparison %>% filter(year == 2018) %>% 
+  ggplot(aes(x = subscriber_avg, y = subscriber_eday)) + 
+  geom_point() + xlim(0, 400) + ylim(0, 400) + 
+  geom_abline(slope = 1, intercept = 0, color = "red") + theme_minimal() + 
+  labs(x = "Avg. Oct.-Nov. (2018) subscriber stops", y = "Election Day (2018) subscriber stops") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+nyc_fig7 <- citi_eday_comparison %>% filter(year == 2014) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday)) + 
+  geom_histogram() + geom_vline(xintercept = subscriber_perc_exp_eday_14, lwd = 2, color = "red") + 
+  scale_y_continuous(expand = c(0,0)) + 
+  labs(y = "", x = "Subscriber stops as proportion of Oct.-Nov. avg. (2014)") + 
+  theme_minimal() + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+nyc_fig8 <- citi_eday_comparison %>% filter(year == 2018) %>% 
+  mutate(subscriber_perc_avg_eday = subscriber_eday/subscriber_avg) %>% 
+  ggplot(aes(x = subscriber_perc_avg_eday)) + 
+  geom_histogram() + geom_vline(xintercept = subscriber_perc_exp_eday_18, lwd = 2, color = "red") + 
+  scale_y_continuous(expand = c(0,0)) + 
+  labs(y = "", x = "Subscriber stops as proportion of Oct.-Nov. avg. (2018)") + 
+  theme_minimal() + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+# ggsave("figures/nyc/nyc_fig7.png", nyc_fig7, width = 6, height = 6, dpi = 300)
+# ggsave("figures/nyc/nyc_fig8.png", nyc_fig8, width = 6, height = 6, dpi = 300)
+
+nyc_fig9 <- NYC_boundary %>%
+  # st_transform("+proj=laea +x_0=0 +y_0=0 +lon_0=-50 +lat_0=40") %>%  # May come in handy later?
+  ggplot() + geom_sf(fill = "aliceblue") +  
+  geom_sf(data = combined_ids_polling %>% 
+            mutate(type = ifelse(type == "station", "Citi Bike station", "Polling place")), 
+          aes(color = type), size = 1) + 
+  theme_void() + scale_color_manual(values = c("tomato2", "skyblue3")) + 
+  labs(color = NULL) + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "left")
+
+# ggsave("figures/nyc/nyc_fig9.png", nyc_fig9, width = 8, height = 6, dpi = 300)
+
+
+nyc_fig10 <- citi_2018_eday_distances %>% 
+  ggplot(aes(x = sqrt(min_polling_distance), 
+             y = subscriber_perc_avg_eday)) + geom_point() + 
+  geom_smooth(method = "lm", se = T, color = "red") + theme_minimal() + 
+  labs(x = "sqrt(Min. distance to nearest polling place)",
+       y = "Election Day (2018) subscriber stops\nas proportion of Oct.-Nov. avg.") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+nyc_fig11 <- citi_2018_eday_distances %>% 
+  ggplot(aes(x = n_within_250m, 
+             y = subscriber_perc_avg_eday)) + geom_jitter(height = 0, width = 0.06, alpha = 0.75) + 
+  geom_smooth(method = "lm", se = T, color = "red") + theme_minimal() + 
+  labs(x = "Number of polling places within 250m radius",
+       y = "Election Day (2018) subscriber stops\nas proportion of Oct.-Nov. avg.") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+ggsave("figures/nyc/nyc_fig11.png", nyc_fig11, width = 8, height = 8, dpi = 300) 
+
+
+
+```
+
+```{r}
+NYC_turnout_all %>% summarize(geometry = st_union(geometry)) %>% st_as_sf() %>% mapview()
+```
+
+
+```{r}
+# ggsave("figures/nyc/nyc_fig1.png", nyc_fig1, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig2.png", nyc_fig2, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig3.png", nyc_fig3, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig9a.png", nyc_fig9a, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig9b.png", nyc_fig9b, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig10a.png", nyc_fig10a, width = 4, height = 3, dpi = 200)
+# ggsave("figures/nyc/nyc_fig10b.png", nyc_fig10b, width = 4, height = 3, dpi = 200)
+
+
+```
+
+```{r}
+### FIGURES: HISTOGRAMS ###
+
+
+
+# ggsave("figures/pdx/hist/pdx_h1.png", h1, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h2.png", h2, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h3.png", h3, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h4.png", h4, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h5.png", h5, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h6.png", h6, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h7.png", h7, width = 4, height = 3, dpi = 100)
+# ggsave("figures/pdx/hist/pdx_h8.png", h8, width = 4, height = 3, dpi = 100)
+```

@@ -39,6 +39,7 @@ library(ggnewscale)
 library(stargazer)
 library(raster)
 library(viridis)
+library(units)
 library(tidycensus)
 
 library(tidyverse)
@@ -55,15 +56,24 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 ##########FIX VARS
 ########## CONVERT TO TIBBLE
 
-SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") 
+SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds") %>% 
+  mutate(area_miles = set_units(st_area(geometry), mi^2)) # local races
+SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds") %>% 
+  st_as_sf() %>% 
+  st_make_valid() %>% 
+  mutate(area_miles = set_units(st_area(geometry), mi^2)) # federal races
+
+SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") %>% 
+  mutate(year_inter = ifelse(is.na(year_inter), "-", year_inter))
+
+SEA_lanes_final %>% 
+  select(streetname, type, official_complete, INSTALL_YR, year_before, year_inter, year_after, link, before_url, after_url)
 
 ### REMOVE TRANSFORM
 SEA_walksheds <- readRDS("data/seattle/SEA_walksheds.rds")
 
 SEA_boundary <- readRDS("data/seattle/SEA_boundary.rds")
 
-SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds")    # local races
-SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds")  # federal races
 
 ```
 
@@ -182,9 +192,14 @@ mod4c <- SEA_elections_even %>%
 ```
 
 ```{r}
+summary(mod4c)
+```
+
+
+```{r}
 ### FIGURES: MAPS ###
 
-sea_fig1 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+sea_fig1 <- ggplot(data = SEA_elections_odd %>% st_as_sf()) + 
   geom_sf(aes(fill = turnout_diff_oc1)) + theme_void() + 
   scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6,
                        labels = c("-0.15" = "-0.15", "0.10" = "", 
@@ -194,7 +209,7 @@ sea_fig1 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() +
   theme(plot.background = element_rect(fill = "white", color = NA),
         legend.position = "bottom")
 
-sea_fig2 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+sea_fig2 <- ggplot(data = SEA_elections_odd %>% st_as_sf()) + 
   geom_sf(aes(fill = turnout_diff_oc2)) + theme_void() + 
   scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6,
                        labels = c("0" = "0.00", "0.05" = "", 
@@ -204,7 +219,7 @@ sea_fig2 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() +
   theme(plot.background = element_rect(fill = "white", color = NA),
         legend.position = "bottom")
 
-sea_fig3 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() + 
+sea_fig3 <- ggplot(data = SEA_elections_odd %>% st_as_sf()) + 
   geom_sf(fill = "aliceblue") + theme_void() + 
   geom_sf(data = st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
                       select(walk_15) %>% 
@@ -221,7 +236,53 @@ sea_fig3 <- SEA_elections_odd %>% st_as_sf() %>% ggplot() +
         legend.position = "bottom",
         legend.box.margin = margin(0, 0, 10, 0))
 
-# ggsave("figures/sea/sea_fig1.png", sea_fig1, width = 3, height = 5, dpi = 200)
+sea_fig5c <- ggplot(data = SEA_elections_even %>% st_as_sf()) + 
+  geom_sf(aes(fill = turnout_diff_ec2)) + theme_void() + 
+  scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6) + 
+  labs(fill = expression(paste(Delta, " turnout"))) + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom")
+
+sea_fig5d <- ggplot(data = SEA_elections_even %>% st_as_sf()) + 
+  geom_sf(aes(fill = turnout_diff_ec3)) + theme_void() + 
+  scale_fill_fermenter(palette = "RdYlGn", direction = 1, n.breaks = 6) + 
+  labs(fill = expression(paste(Delta, " turnout"))) + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom")
+```
+
+
+```{r}
+sea_fig8 <- ggplot(data = SEA_elections_odd %>% st_as_sf()) + 
+  geom_sf(aes(fill = as.numeric(area_miles))) + theme_void() + 
+  scale_fill_distiller(name = "Sq. \nmiles", direction = 1) + 
+  new_scale("fill") + 
+  geom_sf(data = st_as_sf(spTransform(as_Spatial((SEA_walksheds %>%
+                      filter(official_complete < 2018) %>% 
+                      select(walk_15) %>% 
+                      st_as_sf() %>% 
+                      st_make_valid() %>% 
+                      summarize(walk_15 = st_union(walk_15)))$walk_15) %>% 
+                    crop(., extent(st_bbox(SEA_boundary))), 
+                    CRS(paste0("+proj=longlat +datum=WGS84 +no_defs", 
+                               "+ellps=WGS84 +towgs84=0,0,0")))) %>% 
+            mutate(type = "15-min.\nwalkshed"), 
+          aes(fill = type), alpha = 0.75) + 
+  scale_fill_manual(values = "red", name = "") + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom",
+        legend.box.margin = margin(0, 0, 10, 0))
+
+sea_fig9 <- ggplot() + geom_sf(data = SEA_elections_odd %>% st_as_sf(), 
+                                 aes(fill = walk_15_oc1)) + 
+  theme_void() + 
+  scale_fill_distiller(name = "T (all)", direction = 1, palette = "Oranges") + 
+  theme(plot.background = element_rect(fill = "white", color = NA),
+        legend.position = "bottom",
+        legend.box.margin = margin(0, 0, 10, 0),
+        legend.title = element_text(vjust = 0.75))
+
+# ggsave("figures/sea/sea_fig8.png", sea_fig8, width = 3, height = 5, dpi = 200)
 
 ```
 
