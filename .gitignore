@@ -8,11 +8,16 @@ data/api_keys.xlsx
 election_cycling.Rproj
 
 
-## Old PDX files:
+## Old files:
 
 data/portland/old
 data/seattle/old
+data/nyc/old
 
 figures/pdx/old
+figures/sea/old
+figures/nyc/old
+
+# Backup files
 
 portland_full.Rmd
