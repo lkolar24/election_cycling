@@ -41,7 +41,3 @@ Though my full code is not included, I am working on turning many of my importan
 | `NYC_polling_2018` | Cleaned New York City polling places, 2018 |
 | `NYC_citi_2018_eday_distances` | Citi Bike station treatments relating to polling place proximity |
 | `NYC_combined_ids_polling` | Citi Bike stations and polling places, for visualization |
-
-| Data set name  | Description |
-| ------------- | ------------- |
-| - | - |
