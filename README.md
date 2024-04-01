@@ -14,7 +14,7 @@ Though my full code is not included, I am working on turning many of my importan
 | `PDX_protected_lanes`  | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/after images |
 | `PDX_roads` | Street network shapefiles, for visualization |
 | `PDX_walksheds` | 15-min. walkshed shapefiles, for visualization |
-| `PDX_??` | - |
+| `PDX_gent_index_2016` | Portland gentrification index from 2018 study |
 
 ### Seattle: *Bike lane heuristics*
 
