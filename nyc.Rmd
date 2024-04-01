@@ -55,13 +55,13 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 NYC_turnout_all <- readRDS("data/nyc/NYC_turnout_all.rds")
 NYC_boundary <- readRDS("data/nyc/NYC_boundary.rds")
 
+# NYC_citi_2014 <- readRDS("data/nyc/NYC_citi_2014.rds")
+# NYC_citi_2015 <- readRDS("data/nyc/NYC_citi_2015.rds")
+# NYC_citi_2016 <- readRDS("data/nyc/NYC_citi_2016.rds")
+# NYC_citi_2017 <- readRDS("data/nyc/NYC_citi_2017.rds")
+# NYC_citi_2018 <- readRDS("data/nyc/NYC_citi_2018.rds")
 
-citi_2014 <- readRDS("data/nyc/citi_2014.rds")
-citi_2015 <- readRDS("data/nyc/citi_2015.rds")
-citi_2016 <- readRDS("data/nyc/citi_2016.rds")
-citi_2017 <- readRDS("data/nyc/citi_2017.rds")
-citi_2018 <- readRDS("data/nyc/citi_2018.rds")
-all_station_ids <- readRDS("data/nyc/all_station_ids.rds")
+NYC_citi_station_ids <- readRDS("data/nyc/NYC_citi_station_ids.rds")
 
 ```
 
@@ -88,26 +88,12 @@ mod1b <- NYC_turnout_all %>%
                       popw_median_inc_2010_10k + popw_median_age_2010 + 
                       cd7 + cd10 + cd12 + cd13 + only_new, data = .)
 
-# mod1c <- lm(to_18 ~ perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
-#                       popw_median_inc_2010 + popw_median_age_2010 + 
-#                       cd7 + cd10 + cd12 + cd13 + old + only_new + both_old_new, 
-#            data = NYC_turnout_all) %>% summary()
-
-# mod1d <- lm(to_14 ~ perc_white_2010 + perc_black_2010 + perc_hisp_2010 + 
-#                       popw_median_inc_2010 + popw_median_age_2010 + 
-#                       cd7 + cd10 + cd12 + cd13 + old, 
-#            data = NYC_turnout_all) %>% summary()
-
-# stargazer(mod1a, mod1b, title="Regression Results",
-#           dep.var.labels=c(""),
-#           column.labels = c("Model 1a", "Model 1b"))
-
 ```
 
 ```{r, warning = F}
 ### ANALYSIS 2 ###
 
-citi_eday_comparison <- readRDS("data/nyc/citi_eday_comparison.rds")
+NYC_citi_eday_comparison <- readRDS("data/nyc/NYC_citi_eday_comparison.rds")
 NYC_weather <- readRDS("data/nyc/NYC_weather.rds")
 
 ####
@@ -129,12 +115,12 @@ perc_exp_eday_18 <- NYC_weather_mod$coefficients[1] +
   NYC_weather_mod$coefficients[6]*eday_weather_18$tmax + 
   NYC_weather_mod$coefficients[9]
 
-perc_avgs_eday_2018 <- (citi_eday_comparison %>% 
+perc_avgs_eday_2018 <- (NYC_citi_eday_comparison %>% 
   filter(year == 2018) %>% 
   mutate(perc_avg_eday = stops_all_eday/avg_all))$perc_avg_eday
 
-conf_int_2018 <- c(mean(perc_avgs_eday_2018) - 1.96*(sd(perc_avgs_eday_2014)/sqrt(length(perc_avgs_eday_2014))), 
-  mean(perc_avgs_eday_2018) + 1.96*(sd(perc_avgs_eday_2014)/sqrt(length(perc_avgs_eday_2014))))
+conf_int_2018 <- c(mean(perc_avgs_eday_2018) - 1.96*(sd(perc_avgs_eday_2018)/sqrt(length(perc_avgs_eday_2018))), 
+  mean(perc_avgs_eday_2018) + 1.96*(sd(perc_avgs_eday_2018)/sqrt(length(perc_avgs_eday_2018))))
 
 ####
 
@@ -144,7 +130,7 @@ perc_exp_eday_14 <- NYC_weather_mod$coefficients[1] +
   NYC_weather_mod$coefficients[6]*eday_weather_14$tmax + 
   NYC_weather_mod$coefficients[9]
 
-perc_avgs_eday_2014 <- (citi_eday_comparison %>% 
+perc_avgs_eday_2014 <- (NYC_citi_eday_comparison %>% 
   filter(year == 2014) %>% 
   mutate(perc_avg_eday = stops_all_eday/avg_all))$perc_avg_eday
 
@@ -157,14 +143,14 @@ conf_int_2014 <- c(mean(perc_avgs_eday_2014) - 1.96*(sd(perc_avgs_eday_2014)/sqr
 ### ANALYSIS 3 ###
 
 NYC_polling_2018 <- readRDS("data/nyc/NYC_polling_2018.rds")
-citi_2018_eday_distances <- readRDS("data/nyc/citi_2018_eday_distances.rds")%>% 
+NYC_citi_2018_eday_distances <- readRDS("data/nyc/NYC_citi_2018_eday_distances.rds")%>% 
   mutate(perc_avg_eday = stops_all_eday/avg_all)
-combined_ids_polling <- readRDS("data/nyc/combined_ids_polling.rds")
+NYC_combined_ids_polling <- readRDS("data/nyc/NYC_combined_ids_polling.rds")
 
-mod_3a <- citi_2018_eday_distances %>% 
+mod_3a <- NYC_citi_2018_eday_distances %>% 
   lm(perc_avg_eday ~ sqrt(min_polling_distance), data = .)
 
-mod_3b <- citi_2018_eday_distances %>% 
+mod_3b <- NYC_citi_2018_eday_distances %>% 
   lm(perc_avg_eday ~ n_within_250m, data = .) 
 
 # stargazer(mod_3a, mod_3b, title="Regression Results",
@@ -182,7 +168,7 @@ nyc_fig1a <- NYC_boundary %>%
   ggplot() + geom_sf(fill = "aliceblue") +  
   geom_sf(data = NYC_turnout_all %>% st_as_sf(), fill = NA, lwd = 0.1,
           color = "grey") + 
-  geom_sf(data = all_station_ids %>% 
+  geom_sf(data = NYC_citi_station_ids %>% 
             filter(type %in% c("exp", "old", "new")) %>% 
             mutate(type = ifelse(type == "exp", "Removed",
                                  ifelse(type == "old", "Existing",
@@ -197,7 +183,7 @@ nyc_fig1a <- NYC_boundary %>%
 
 nyc_fig1b <- NYC_boundary %>%
   ggplot() + geom_sf(fill = "aliceblue") +  
-  geom_sf(data = citi_eday_comparison %>% 
+  geom_sf(data = NYC_citi_eday_comparison %>% 
             filter(year == 2018) %>% 
             st_as_sf() %>% 
             mutate(perc_avg_eday = stops_all_eday/avg_all), 
@@ -210,7 +196,7 @@ nyc_fig1b <- NYC_boundary %>%
 
 nyc_fig7b <- NYC_boundary %>%
   ggplot() + geom_sf(fill = "aliceblue") +  
-  geom_sf(data = citi_2018_eday_distances %>% 
+  geom_sf(data = NYC_citi_2018_eday_distances %>% 
             st_as_sf(), aes(color = sqrt(min_polling_distance), 
                             size = n_within_250m), alpha = 0.8) + 
   theme_void() + #scale_color_manual(values = c("tomato2", "skyblue3")) + 
@@ -232,17 +218,17 @@ nyc_fig2 <- NYC_boundary %>%
   ggplot() + geom_sf(fill = "aliceblue") +  
   geom_sf(data = NYC_turnout_all %>% st_as_sf(), fill = NA, lwd = 0.1,
           color = "grey") + 
-  geom_sf(data = all_station_ids %>% 
-            full_join(citi_eday_comparison %>% 
+  geom_sf(data = NYC_citi_station_ids %>% 
+            full_join(NYC_citi_eday_comparison %>% 
                         mutate(perc_avg_eday = stops_all_eday/avg_all) %>% 
                         as_tibble() %>% 
                         filter(year == 2018) %>% 
-                        select(end_station_id, perc_avg_eday)) %>% 
+                        dplyr::select(end_station_id, perc_avg_eday)) %>% 
             filter(type %in% c("old", "new")) %>% 
             mutate(type = ifelse(type == "old", "Existing",
                                  "New")), aes(color = type, size = perc_avg_eday), alpha = 0.6) + 
   theme_void() + scale_color_manual(values = c("skyblue3", "darkgreen")) + 
-  geom_sf(data = combined_ids_polling %>% 
+  geom_sf(data = NYC_combined_ids_polling %>% 
             filter(type == "polling") %>% mutate(type = "Polling place"), aes(shape = type), size = 1) +
   scale_shape_manual(values = c(2)) + 
   scale_size(range = c(0.5, 3)) + 
@@ -284,14 +270,14 @@ nyc_fig4 <- NYC_boundary %>%
 
 ### ANALYSIS 2 ###
 
-nyc_fig5 <- citi_eday_comparison %>% filter(year == 2014) %>% 
+nyc_fig5 <- NYC_citi_eday_comparison %>% filter(year == 2014) %>% 
   ggplot(aes(x = avg_all, y = stops_all_eday)) + 
   geom_point(size = 0.5) + xlim(0, 400) + ylim(0, 400) + 
   geom_abline(slope = 1, intercept = 0, color = "red") + theme_minimal() + 
   labs(x = "Avg. Oct.-Nov. (2014) stops", y = "Election Day (2014) stops") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-nyc_fig6 <- citi_eday_comparison %>% filter(year == 2018) %>% 
+nyc_fig6 <- NYC_citi_eday_comparison %>% filter(year == 2018) %>% 
   ggplot(aes(x = avg_all, y = stops_all_eday)) + 
   geom_point(size = 0.5) + xlim(0, 400) + ylim(0, 400) + 
   geom_abline(slope = 1, intercept = 0, color = "red") + theme_minimal() + 
@@ -301,7 +287,7 @@ nyc_fig6 <- citi_eday_comparison %>% filter(year == 2018) %>%
 # ggsave("figures/nyc/nyc_fig5.png", nyc_fig5, width = 3, height = 3, dpi = 300)
 # ggsave("figures/nyc/nyc_fig6.png", nyc_fig6, width = 3, height = 3, dpi = 300)
 
-nyc_fig6a <- citi_eday_comparison %>% filter(year == 2014) %>% 
+nyc_fig6a <- NYC_citi_eday_comparison %>% filter(year == 2014) %>% 
   mutate(perc_avg_eday = stops_all_eday/avg_all) %>% 
   ggplot(aes(x = perc_avg_eday)) + 
   geom_histogram(fill = "lightgrey", color = "grey") + 
@@ -311,7 +297,7 @@ nyc_fig6a <- citi_eday_comparison %>% filter(year == 2014) %>%
   theme_minimal() + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-nyc_fig6b <- citi_eday_comparison %>% filter(year == 2018) %>% 
+nyc_fig6b <- NYC_citi_eday_comparison %>% filter(year == 2018) %>% 
   mutate(perc_avg_eday = stops_all_eday/avg_all) %>% 
   ggplot(aes(x = perc_avg_eday)) + 
   geom_histogram(fill = "lightgrey", color = "grey") + 
@@ -321,14 +307,14 @@ nyc_fig6b <- citi_eday_comparison %>% filter(year == 2018) %>%
   theme_minimal() + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-ggsave("figures/nyc/nyc_fig6a.png", nyc_fig6a, width = 3, height = 3, dpi = 300)
-ggsave("figures/nyc/nyc_fig6b.png", nyc_fig6b, width = 3, height = 3, dpi = 300)
+# ggsave("figures/nyc/nyc_fig6a.png", nyc_fig6a, width = 3, height = 3, dpi = 300)
+# ggsave("figures/nyc/nyc_fig6b.png", nyc_fig6b, width = 3, height = 3, dpi = 300)
 
 ### ANALYSIS 3 ###
 
 nyc_fig7a <- NYC_boundary %>%
   ggplot() + geom_sf(fill = "aliceblue") +  
-  geom_sf(data = combined_ids_polling %>% 
+  geom_sf(data = NYC_combined_ids_polling %>% 
             
             mutate(type = ifelse(type == "station", "Citi Bike station", "Polling place")), 
           aes(color = type), size = 2) + 
@@ -341,7 +327,7 @@ nyc_fig7a <- NYC_boundary %>%
   
 # ggsave("figures/nyc/nyc_fig7a.png", nyc_fig7a, width = 6, height = 9, dpi = 300)  
 
-nyc_fig10 <- citi_2018_eday_distances %>% 
+nyc_fig10 <- NYC_citi_2018_eday_distances %>% 
   ggplot(aes(x = sqrt(min_polling_distance), 
              y = perc_avg_eday)) + geom_point() + 
   geom_smooth(method = "lm", se = T, color = "red") + theme_minimal() + 
@@ -349,7 +335,7 @@ nyc_fig10 <- citi_2018_eday_distances %>%
        y = "Election Day (2018) stops\nas proportion of Oct.-Nov. avg.") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-nyc_fig11 <- citi_2018_eday_distances %>% 
+nyc_fig11 <- NYC_citi_2018_eday_distances %>% 
   ggplot(aes(x = n_within_250m, 
              y = perc_avg_eday)) + geom_jitter(height = 0, width = 0.06, alpha = 0.75) + 
   geom_smooth(method = "lm", se = T, color = "red") + theme_minimal() + 
@@ -357,7 +343,7 @@ nyc_fig11 <- citi_2018_eday_distances %>%
        y = "Election Day (2018) stops\nas proportion of Oct.-Nov. avg.") + 
   theme(plot.background = element_rect(fill = "white", color = NA))
 
-# ggsave("figures/nyc/nyc_fig7.png", width = 8, height = 8, dpi = 300) 
+ggsave("figures/nyc/nyc_fig11.png", nyc_fig11, width = 8, height = 8, dpi = 300) 
 
 ```
 

@@ -60,6 +60,21 @@ PDX_roads <- readRDS(paste0(getwd(), "/data/portland/PDX_roads.rds"))
 
 PDX_gent_index_2016 <- readRDS("data/portland/PDX_gent_index_2016.rds")
 
+gent_levels <- c("Continuted Loss", "Late: Type 2", "Late: Type 1", "Dynamic",
+                 "Early: Type 2", "Early: Type 1", "Susceptible", "None")
+
+PDX_gent_index_2016 %>%
+  mutate(gent_index = fct_relevel(gent_index, gent_levels)) %>% 
+  st_as_sf() %>% ggplot() + 
+  geom_sf(aes(fill = gent_index), color = "black") + 
+  scale_fill_brewer(direction = -1) + theme_void() + 
+  labs(fill = "Index") + 
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+ggsave("pdx_gent_index.png", width = 8, height = 6)
+  
+  unique(PDX_gent_index_2016$gent_index)
+getwd()
 ```
 
 ```{r}
@@ -116,7 +131,10 @@ mod4 <- lm(wheeler_change ~ gent_area + pre_gent_area +
 # anova(mod1, mod2)[1:6]
 # anova(mod1, mod3)[1:6]
 # anova(mod1, mod4)[1:6]
+```
 
+
+```{r}
 mod5 <- lm(wheeler_change ~ gent_area + pre_gent_area + 
                     bgp_perc_auto*bgp_median_age + 
                     pop_density_2010 + 

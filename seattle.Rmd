@@ -53,21 +53,10 @@ census_api_key((read_xlsx(paste0(getwd(), "/data/api_keys.xlsx")) %>%
 ```{r}
 ### DATA ###
 
-##########FIX VARS
-########## CONVERT TO TIBBLE
+SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds") # local races
+SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds") # federal races
 
-SEA_elections_odd <- readRDS("data/seattle/SEA_elections_odd.rds") %>% 
-  mutate(area_miles = set_units(st_area(geometry), mi^2)) # local races
-SEA_elections_even <- readRDS("data/seattle/SEA_elections_even.rds") %>% 
-  st_as_sf() %>% 
-  st_make_valid() %>% 
-  mutate(area_miles = set_units(st_area(geometry), mi^2)) # federal races
-
-SEA_lanes_final <- readRDS("data/seattle/SEA_lanes_final.rds") %>% 
-  mutate(year_inter = ifelse(is.na(year_inter), "-", year_inter))
-
-SEA_lanes_final %>% 
-  select(streetname, type, official_complete, INSTALL_YR, year_before, year_inter, year_after, link, before_url, after_url)
+SEA_protected_lanes <- readRDS("data/seattle/SEA_protected_lanes.rds")
 
 ### REMOVE TRANSFORM
 SEA_walksheds <- readRDS("data/seattle/SEA_walksheds.rds")
@@ -104,7 +93,10 @@ mod1c <- SEA_elections_odd %>%
 # stargazer(mod1a, mod1b, mod1c, title="Regression Results",
 #           dep.var.labels=c("Turnout change"),
 #           column.labels = c("Model 1a", "Model 1b", "Model 1c"))
+```
 
+
+```{r}
 mod2a <- SEA_elections_odd %>%
   mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
          perc_white_2010 = 100*perc_white_2010, 
@@ -135,7 +127,10 @@ mod2c <- SEA_elections_odd %>%
 # stargazer(mod1a, mod1b, mod1c, title="Regression Results",
 #           dep.var.labels=c("Turnout change"),
 #           column.labels = c("Model 2a", "Model 2b", "Model 2c"))
+```
 
+
+```{r}
 mod3a <- SEA_elections_even %>%  
   mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
          perc_white_2010 = 100*perc_white_2010, 
@@ -163,7 +158,10 @@ mod3c <- SEA_elections_even %>%
 # stargazer(mod1a, mod1b, mod1c, title="Regression Results",
 #           dep.var.labels=c("Turnout change"),
 #           column.labels = c("Model 3a", "Model 3b", "Model 3c"))
+```
 
+
+```{r}
 mod4a <- SEA_elections_even %>%  
   mutate(popw_median_inc_2010_1k = popw_median_inc_2010/1000, 
          perc_white_2010 = 100*perc_white_2010, 
@@ -189,10 +187,6 @@ mod4c <- SEA_elections_even %>%
 #           dep.var.labels=c("Turnout change"),
 #           column.labels = c("Model 4a", "Model 4b", "Model 4c"))
 
-```
-
-```{r}
-summary(mod4c)
 ```
 
 
