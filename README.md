@@ -20,11 +20,11 @@ Though my full code is not included, I am working on turning many of my importan
 
 | Data set name  | Description |
 | ------------- | ------------- |
-| SEA_elections_odd | Final data set for odd-year precinct regressions, with all variables (including many not used in final analysis) and shapefiles for 833 precincts |
-| SEA_elections_even | Same as above, but for even-year precinct regressions (815 precincts) |
-| SEA_protected_lanes | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/during/after images, and links to validation Internet sources |
-| SEA_walksheds | 15-min. walkshed shapefiles, for visualization |
-| SEA_boundary | Seattle boundary, for visualization |
+| `SEA_elections_odd` | Final data set for odd-year precinct regressions, with all variables (including many not used in final analysis) and shapefiles for 833 precincts |
+| `SEA_elections_even` | Same as above, but for even-year precinct regressions (815 precincts) |
+| `SEA_protected_lanes` | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/during/after images, and links to validation Internet sources |
+| `SEA_walksheds` | 15-min. walkshed shapefiles, for visualization |
+| `SEA_boundary` | Seattle boundary, for visualization |
 
 
 
