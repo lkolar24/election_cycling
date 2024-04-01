@@ -34,7 +34,7 @@ Though my full code is not included, I am working on turning many of my importan
 | ------------- | ------------- |
 | `NYC_turnout_all` | Final data set for precinct turnout regressions, with all variables and shapefiles for 775 precincts |
 | `NYC_citi_station_ids` | Citi Bike station names, coordinates, and implementation in 2014-2018 period |
-| `NYC_citi_2014`,... | Citi Bike rides for 2014 |
+| `NYC_citi_2014`,... | Citi Bike rides for 2014 (years through 2018 included) |
 | `NYC_weather` | Oct.-Nov. weather in New York City for 2014-2018 |
 | `NYC_citi_eday_comparison` | Data with Citi Bike Election Day station volume, proportion to Oct.-Nov. annual average, and more |
 | `NYC_boundary` | Manhattan boundary, for visualization |
