@@ -20,7 +20,7 @@ Though my full code is not included, I am working on turning many of my importan
 
 | Data set name  | Description |
 | ------------- | ------------- |
-| `SEA_elections_odd` | Final data set for odd-year precinct regressions, with all variables (including many not used in final analysis) and shapefiles for 833 precincts |
+| `SEA_elections_odd` | Final data set for odd-year precinct regressions, with all variables and shapefiles for 833 precincts |
 | `SEA_elections_even` | Same as above, but for even-year precinct regressions (815 precincts) |
 | `SEA_protected_lanes` | Shapefiles for protected lanes constructuted between 2016 and 2020, with links to Google Street View before/during/after images, and links to validation Internet sources |
 | `SEA_walksheds` | 15-min. walkshed shapefiles, for visualization |
@@ -29,6 +29,18 @@ Though my full code is not included, I am working on turning many of my importan
 
 
 ### Manhattan: *Biking to the polls*
+
+| Data set name  | Description |
+| ------------- | ------------- |
+| `NYC_turnout_all` | Final data set for precinct turnout regressions, with all variables and shapefiles for 775 precincts |
+| `NYC_citi_station_ids` | Citi Bike station names, coordinates, and implementation in 2014-2018 period |
+| `NYC_citi_2014`,... | Citi Bike rides for 2014 |
+| `NYC_weather` | Oct.-Nov. weather in New York City for 2014-2018 |
+| `NYC_citi_eday_comparison` | Data with Citi Bike Election Day station volume, proportion to Oct.-Nov. annual average, and more |
+| `NYC_boundary` | Manhattan boundary, for visualization |
+| `NYC_polling_2018` | Cleaned New York City polling places, 2018 |
+| `NYC_citi_2018_eday_distances` | Citi Bike station treatments relating to polling place proximity |
+| `NYC_combined_ids_polling` | Citi Bike stations and polling places, for visualization |
 
 | Data set name  | Description |
 | ------------- | ------------- |
